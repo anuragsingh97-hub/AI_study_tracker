@@ -4,6 +4,9 @@ import dotenv from "dotenv";
 
 import connectDB from "./config/db.js";
 
+import authRoutes from "./routes/authRoutes.js";
+import studyRoutes from "./routes/studyRoutes.js";
+
 dotenv.config();
 
 connectDB();
@@ -25,6 +28,9 @@ app.get("/", (req, res) => {
     message: "AI Study Tracker Backend Running 🚀",
   });
 });
+
+app.use("/api/auth",authRoutes);
+app.use("/api/study", studyRoutes);
 
 const PORT = process.env.PORT || 5000;
 

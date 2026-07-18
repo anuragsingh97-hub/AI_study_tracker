@@ -8,11 +8,10 @@ import GoalProgress from "../components/dashboard/GoalProgress";
 import RecentSessions from "../components/dashboard/RecentSessions";
 
 import { FaBookOpen, FaFire, FaBullseye, FaStar } from "react-icons/fa";
-import Test from "../components/dashboard/Test";
-
+const tittle="Dashboard"
 const Dashboard = () => {
   return (
-    <DashboardLayout>
+    <DashboardLayout tittle={tittle}>
       <WelcomeCard />
 
       {/* Stats */}

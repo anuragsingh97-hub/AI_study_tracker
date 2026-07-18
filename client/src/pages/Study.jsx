@@ -1,81 +1,191 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useMemo, useCallback } from "react";
 
 import DashboardLayout from "../layouts/DashboardLayout";
-import CameraPreview from "../components/study/CameraPreview";
+
+import StudyForm from "../components/study/StudyForm";
 import StudyTimer from "../components/study/StudyTimer";
-import SessionControls from "../components/study/SessionControls";
-import FocusCard from "../components/study/FocusCard";
-
+import CameraPreview from "../components/study/CameraPreview";
+import FaceStatus from "../components/study/FaceStatus";
+import StudyStats from "../components/study/StudyStats";
+import StudyNotes from "../components/study/StudyNotes";
+import StudyQuote from "../components/study/StudyQuote";
+import StudySummaryModal from "../components/study/StudySummaryModal";
 import useFaceDetection from "../hooks/useFaceDetection";
+import useFaceLandmarker from "../hooks/useFaceLandmarker";
+import useYOLODetection from "../hooks/useYOLODetection";
+import useVoiceDetection from "../hooks/useVoiceDetection";
 
-export default function Study() {
+export default function StudyPage() {
+  // -------------------------------
+  // Session Information
+  // -------------------------------
 
-    const [running, setRunning] = useState(false);
+  const [subject, setSubject] = useState("");
+  const [topic, setTopic] = useState("");
+  const [goal, setGoal] = useState("");
 
-    const webcamRef = useRef(null);
+  const [notes, setNotes] = useState("");
 
-    const faceDetected = useFaceDetection(webcamRef);
+  const [sessionStatus, setSessionStatus] = useState("idle");
+  const [showSummary, setShowSummary] = useState(false);
 
-    useEffect(() => {
+  // -------------------------------
+  // Webcam
+  // -------------------------------
 
-        let timer;
+  const videoRef = useRef(null);
 
-        if (!faceDetected && running) {
+  // Temporary AI states
+  // These will later come from useFaceDetection()
+  const monitoringActive = sessionStatus === "running";
+  const { objects, phoneDetected } = useYOLODetection(videoRef, monitoringActive);
+  const { voiceDetected, microphoneStatus } = useVoiceDetection(monitoringActive);
+  const { faceDetected, faceCount, detections } = useFaceDetection(videoRef, monitoringActive);
+  const { headPose } = useFaceLandmarker(videoRef, monitoringActive);
 
-            timer = setTimeout(() => {
+  const faceVisible = faceDetected && headPose.direction !== "No Face";
+  const lookingAway = !faceVisible || headPose.lookingAway;
+  // Face detection is more reliable than a general object detector for
+  // deciding whether another person is present in a webcam view.
+  const multipleFaces = faceCount > 1;
 
-                setRunning(false);
+  // -------------------------------
+  // Statistics
+  // -------------------------------
 
-                alert("Face not detected. Session Paused.");
+  const [studyTime, setStudyTime] = useState(0);
+  const [pauseCount, setPauseCount] = useState(0);
+  const [sessions] = useState(15);
+  const canStart = Boolean(subject.trim() && topic.trim() && goal.trim());
 
-            }, 5000);
+  const startStudy = useCallback(() => {
+    if (canStart) setSessionStatus("running");
+  }, [canStart]);
 
-        }
+  const pauseStudy = useCallback(() => {
+    if (sessionStatus === "running") {
+      setPauseCount((count) => count + 1);
+      setSessionStatus("paused");
+    }
+  }, [sessionStatus]);
 
-        return () => clearTimeout(timer);
+  const finishStudy = useCallback(() => {
+    if (sessionStatus === "idle" || sessionStatus === "finished") return;
+    setSessionStatus("finished");
+    setShowSummary(true);
+  }, [sessionStatus]);
 
-    }, [faceDetected, running]);
+  // -------------------------------
+  // Focus Score
+  // -------------------------------
 
-    return (
+  const focusScore = useMemo(() => {
+    // Focus cannot be verified while the camera cannot see the user.
+    if (!faceVisible) return 0;
 
-        <DashboardLayout>
+    let score = 100;
 
-            <h1 className="text-4xl font-bold text-white mb-8">
+    if (lookingAway) score -= 25;
+    if (phoneDetected) score -= 20;
+    if (multipleFaces) score -= 15;
 
-                Study Session
+    return Math.max(score, 0);
+  }, [faceVisible, phoneDetected, lookingAway, multipleFaces]);
+ 
+  const tittle = "AI Study Session";
+  return (
+    <DashboardLayout tittle={tittle}>
+      <div className="min-h-screen bg-slate-950 p-4 sm:p-6 lg:p-8">
+        {/* =======================================
+                First Row
+           ======================================= */}
 
-            </h1>
+        <div className="grid lg:grid-cols-3 gap-5 lg:gap-8">
+          <div className="lg:col-span-2">
+            <StudyForm
+              subject={subject}
+              topic={topic}
+              goal={goal}
+              setSubject={setSubject}
+              setTopic={setTopic}
+              setGoal={setGoal}
+              disabled={sessionStatus === "running" || sessionStatus === "paused"}
+            />
+          </div>
 
-            <div className="grid lg:grid-cols-3 gap-6">
+          <StudyTimer
+            status={sessionStatus}
+            canStart={canStart}
+            onStart={startStudy}
+            onPause={pauseStudy}
+            onFinish={finishStudy}
+            setStudyTime={setStudyTime}
+          />
+        </div>
 
-                <div className="lg:col-span-2">
+        {/* =======================================
+                Second Row
+           ======================================= */}
 
-                    <CameraPreview
-                        webcamRef={webcamRef}
-                        faceDetected={faceDetected}
-                    />
+        <div className="grid lg:grid-cols-3 gap-5 lg:gap-8 mt-5 lg:mt-8">
+          <div className="lg:col-span-2">
+            <CameraPreview
+              webcamRef={videoRef}
+              faceDetected={faceDetected}
+              detections={detections}
+              faceCount={faceCount}
+              objects={objects}
+              active={monitoringActive}
+            />
+          </div>
 
-                </div>
+          <FaceStatus
+            faceDetected={faceDetected}
+            phoneDetected={phoneDetected}
+            voiceDetected={voiceDetected}
+            microphoneStatus={microphoneStatus}
+            lookingAway={lookingAway}
+            multipleFaces={multipleFaces}
+            focusScore={focusScore}
+            headPose={headPose}
+          />
+        </div>
 
-                <FocusCard />
+        {/* =======================================
+                Third Row
+           ======================================= */}
 
-            </div>
+        <div className="mt-8">
+          <StudyStats
+            studyTime={studyTime}
+            pauseCount={pauseCount}
+            focusScore={focusScore}
+            sessions={sessions}
+          />
+        </div>
 
-            <div className="mt-6">
+        {/* =======================================
+                Fourth Row
+           ======================================= */}
 
-                <StudyTimer running={running} />
+        <div className="grid lg:grid-cols-2 gap-5 lg:gap-8 mt-5 lg:mt-8">
+          <StudyNotes notes={notes} setNotes={setNotes} />
 
-                <SessionControls
-                    onStart={() => setRunning(true)}
-                    onPause={() => setRunning(false)}
-                    onResume={() => setRunning(true)}
-                    onEnd={() => setRunning(false)}
-                />
+          <StudyQuote />
+        </div>
 
-            </div>
+        {/* =======================================
+                Summary Modal
+           ======================================= */}
 
-        </DashboardLayout>
-
-    );
-
+        <StudySummaryModal
+          open={showSummary}
+          onClose={() => setShowSummary(false)}
+          studyTime={studyTime}
+          pauseCount={pauseCount}
+          focusScore={focusScore}
+        />
+      </div>
+    </DashboardLayout>
+  );
 }

@@ -1,31 +1,93 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { CheckCircle2, Pause, Play } from "lucide-react";
 
-export default function StudyTimer() {
-  const [seconds, setSeconds] = useState(0);
+const INITIAL_TIME = 25 * 60;
 
-  const [running, setRunning] = useState(false);
+export default function StudyTimer({
+  status,
+  canStart,
+  onStart,
+  onPause,
+  onFinish,
+  setStudyTime,
+}) {
+  const [seconds, setSeconds] = useState(INITIAL_TIME);
+  const running = status === "running";
+
   useEffect(() => {
-    if (!running) return;
+    if (status === "finished") setSeconds(INITIAL_TIME);
+  }, [status]);
+
+  useEffect(() => {
+    if (!running) return undefined;
 
     const timer = setInterval(() => {
-      setSeconds((prev) => prev + 1);
+      setSeconds((previous) => {
+        if (previous <= 1) {
+          clearInterval(timer);
+          onFinish();
+          return 0;
+        }
+
+        setStudyTime((time) => time + 1);
+        return previous - 1;
+      });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [running]);
+  }, [onFinish, running, setStudyTime]);
 
-  const h = Math.floor(seconds / 3600);
-
-  const m = Math.floor((seconds % 3600) / 60);
-
-  const s = seconds % 60;
+  const formattedTime = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(
+    seconds % 60,
+  ).padStart(2, "0")}`;
+  const startLabel = status === "paused" ? "Resume Study" : "Start Study";
 
   return (
-    <div className="bg-slate-900 rounded-3xl p-8">
-      <h1 className="text-6xl font-bold text-center text-white">
-        {String(h).padStart(2, "0")}:{String(m).padStart(2, "0")}:
-        {String(s).padStart(2, "0")}
-      </h1>
-    </div>
+    <motion.div
+      initial={{ opacity: 0, x: 30 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="h-full bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-xl"style={{margin:"2px",padding:"1px"}}
+    >
+      <p className="text-center text-sm font-medium uppercase tracking-[0.2em] text-blue-300">Focus timer</p>
+      <h2 className="mt-1 text-center text-2xl font-bold text-white">Pomodoro</h2>
+      <div className="py-7 text-center">
+        <div className="text-5xl sm:text-6xl font-bold tracking-tight text-blue-400">{formattedTime}</div>
+      </div>
+
+      <div className="grid gap-3">
+        <button
+          type="button"
+          onClick={onStart}
+          disabled={running || (!canStart && status === "idle")}
+          className="flex items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-3 font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Play size={18} />
+          {startLabel}
+        </button>
+        <button
+          type="button"
+          onClick={onPause}
+          disabled={!running}
+          className="flex items-center justify-center gap-2 rounded-xl bg-yellow-500 px-4 py-3 font-semibold text-white transition hover:bg-yellow-600 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Pause size={18} />
+          Pause Study
+        </button>
+        <button
+          type="button"
+          onClick={onFinish}
+          disabled={status === "idle" || status === "finished"}
+          className="flex items-center justify-center gap-2 rounded-xl border border-red-500/70 bg-red-500/15 px-4 py-3 font-semibold text-red-300 transition hover:bg-red-500/25 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <CheckCircle2 size={18} />
+          Finish Study
+        </button>
+      </div>
+
+      {status === "idle" && !canStart && (
+        <p className="mt-4 text-center text-xs text-amber-300">Add a subject, topic, and goal before starting.</p>
+      )}
+    </motion.div>
   );
 }

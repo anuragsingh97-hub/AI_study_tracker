@@ -1,39 +1,66 @@
-import { useEffect, useState } from "react";
-import { loadFaceDetector } from "../ai/faceDetector";
+import { useEffect, useRef, useState } from "react";
+import { loadFaceDetector } from "../ai/face/faceDetector";
 
-export default function useFaceDetection(videoRef) {
+export default function useFaceDetection(webcamRef, enabled) {
   const [faceDetected, setFaceDetected] = useState(false);
+  const [faceCount, setFaceCount] = useState(0);
+  const [detections, setDetections] = useState([]);
+  const lastFaceSeenAt = useRef(0);
 
   useEffect(() => {
-    let detector;
+    let interval;
+    let cancelled = false;
 
-    async function start() {
-      detector = await loadFaceDetector();
-
-      const detect = async () => {
-        if (
-          webcamRef.current &&
-          webcamRef.current.video &&
-          webcamRef.current.video.readyState === 4 &&
-          webcamRef.current.video.videoWidth > 0 &&
-          webcamRef.current.video.videoHeight > 0
-        ) {
-          const result = detector.detectForVideo(
-            webcamRef.current.video,
-            performance.now(),
-          );
-
-          setFaceDetected(result.detections.length > 0);
-        }
-
-        requestAnimationFrame(detect);
-      };
-
-      detect();
+    if (!enabled) {
+      setFaceDetected(false);
+      setFaceCount(0);
+      setDetections([]);
+      return undefined;
     }
 
-    start();
-  }, []);
+    async function startDetection() {
+      const detector = await loadFaceDetector();
+      if (cancelled) return;
 
-  return faceDetected;
+      interval = setInterval(() => {
+        const video = webcamRef.current?.video;
+
+        if (!video) return;
+
+        if (video.readyState !== 4) return;
+
+        const result = detector.detectForVideo(video, performance.now());
+
+        const faces = result.detections ?? [];
+
+        if (faces.length > 0) {
+          lastFaceSeenAt.current = Date.now();
+          setDetections(faces);
+          setFaceDetected(true);
+          setFaceCount(faces.length);
+          return;
+        }
+
+        // Keep the last face state briefly to avoid UI flicker from one
+        // dropped camera frame.
+        if (Date.now() - lastFaceSeenAt.current > 750) {
+          setDetections([]);
+          setFaceDetected(false);
+          setFaceCount(0);
+        }
+      }, 100); // 10 FPS
+    }
+
+    startDetection();
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [webcamRef, enabled]);
+  return {
+    faceDetected,
+    faceCount,
+    detections,
+  };
 }

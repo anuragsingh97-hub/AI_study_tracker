@@ -7,6 +7,8 @@ import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
 import Study from "./pages/Study"
+import Goals from "./pages/Goals";
+import Profile from "./pages/Profile";
 function App() {
   return (
     <Routes>
@@ -43,6 +45,14 @@ function App() {
             <Study />
           </ProtectedRoute>
         }
+      />
+      <Route
+        path="/goals"
+        element={<ProtectedRoute><Goals /></ProtectedRoute>}
+      />
+      <Route
+        path="/profile"
+        element={<ProtectedRoute><Profile /></ProtectedRoute>}
       />
     </Routes>
   );

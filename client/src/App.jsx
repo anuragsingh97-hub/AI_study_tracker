@@ -6,9 +6,10 @@ import Dashboard from "./pages/Dashboard";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
-import Study from "./pages/Study"
+import Study from "./pages/Study";
 import Goals from "./pages/Goals";
 import Profile from "./pages/Profile";
+import AIAssistant from "./pages/AIAssistant";
 function App() {
   return (
     <Routes>
@@ -48,11 +49,27 @@ function App() {
       />
       <Route
         path="/goals"
-        element={<ProtectedRoute><Goals /></ProtectedRoute>}
+        element={
+          <ProtectedRoute>
+            <Goals />
+          </ProtectedRoute>
+        }
       />
       <Route
         path="/profile"
-        element={<ProtectedRoute><Profile /></ProtectedRoute>}
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/ai"
+        element={
+          <ProtectedRoute>
+            <AIAssistant />
+          </ProtectedRoute>
+        }
       />
     </Routes>
   );

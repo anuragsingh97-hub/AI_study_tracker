@@ -28,31 +28,38 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
 
-    profilePicture: {
+    avatar: {
       type: String,
       default: "",
     },
 
-    studyGoal: {
+    bio: {
       type: String,
       default: "",
     },
 
-    dailyTargetHours: {
+    college: String,
+
+    branch: String,
+
+    semester: Number,
+
+    studyStreak: {
       type: Number,
-      default: 2,
-      min: 1,
-      max: 24,
+      default: 0,
     },
 
-    streak: {
+    totalStudyHours: {
+      type: Number,
+      default: 0,
+    },
+
+    focusScore: {
       type: Number,
       default: 0,
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true },
 );
 
 /*

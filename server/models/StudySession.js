@@ -2,57 +2,39 @@ import mongoose from "mongoose";
 
 const studySessionSchema = new mongoose.Schema(
   {
-    user: {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
 
-    subject: {
-      type: String,
-      required: true,
+    goalId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Goal",
     },
 
-    startTime: {
-      type: Date,
-      required: true,
-    },
+    subject: String,
 
-    endTime: {
-      type: Date,
-    },
+    topic: String,
 
-    duration: {
-      type: Number,
-      default: 0,
-    },
+    startTime: Date,
 
-    status: {
-      type: String,
-      enum: [
-        "running",
-        "paused",
-        "completed",
-      ],
-      default: "running",
-    },
+    endTime: Date,
 
-    distractionCount: {
-      type: Number,
-      default: 0,
-    },
+    duration: Number,
 
-    focusScore: {
-      type: Number,
-      default: 100,
-    },
+    focusScore: Number,
+
+    phoneDetections: Number,
+
+    talkingCount: Number,
+
+    multiplePersonCount: Number,
+
+    faceVisibleTime: Number,
+
+    breakCount: Number,
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true },
 );
 
-export default mongoose.model(
-  "StudySession",
-  studySessionSchema
-);
+export default mongoose.model("StudySession", studySessionSchema);

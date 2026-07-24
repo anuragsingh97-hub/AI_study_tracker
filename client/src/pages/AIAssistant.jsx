@@ -168,7 +168,7 @@ export default function AIAssistant() {
             })}
           </div>
         </header>
-        <AISummary />
+        {/* <AISummary /> */}
         <div className="grid gap-6 xl:grid-cols-3">
           <section className="flex min-h-[620px] flex-col overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 xl:col-span-2">
             <div className="flex items-center gap-3 border-b border-slate-800 px-5 py-4">

@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
 import { FaArrowRight } from "react-icons/fa";
 import useAuth from "../../hooks/useAuth";
-
+import { useNavigate } from "react-router-dom";
 const WelcomeCard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const hour = new Date().getHours();
 
@@ -31,8 +32,9 @@ const WelcomeCard = () => {
         </div>
 
         {/* Right */}
-        <button className="flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-blue-700 transition hover:scale-105 hover:shadow-lg" style={{padding:"3px"}}>
+        <button className="flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-blue-700 transition hover:scale-105 hover:shadow-lg" style={{padding:"3px"}} onClick={() => navigate("/study")}>
           Start Study Session
+          
           <FaArrowRight />
         </button>
       </div>

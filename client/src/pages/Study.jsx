@@ -14,6 +14,7 @@ import useFaceDetection from "../hooks/useFaceDetection";
 import useFaceLandmarker from "../hooks/useFaceLandmarker";
 import useYOLODetection from "../hooks/useYOLODetection";
 import useVoiceDetection from "../hooks/useVoiceDetection";
+import { createStudy, updateStudy } from "../api/studyApi";
 
 export default function StudyPage() {
   // -------------------------------
@@ -28,6 +29,11 @@ export default function StudyPage() {
 
   const [sessionStatus, setSessionStatus] = useState("idle");
   const [showSummary, setShowSummary] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
+  const [pauseDuration, setPauseDuration] = useState(0);
+  const [sessionError, setSessionError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const pauseStartedAt = useRef(null);
 
   // -------------------------------
   // Webcam
@@ -58,23 +64,6 @@ export default function StudyPage() {
   const [sessions] = useState(15);
   const canStart = Boolean(subject.trim() && topic.trim() && goal.trim());
 
-  const startStudy = useCallback(() => {
-    if (canStart) setSessionStatus("running");
-  }, [canStart]);
-
-  const pauseStudy = useCallback(() => {
-    if (sessionStatus === "running") {
-      setPauseCount((count) => count + 1);
-      setSessionStatus("paused");
-    }
-  }, [sessionStatus]);
-
-  const finishStudy = useCallback(() => {
-    if (sessionStatus === "idle" || sessionStatus === "finished") return;
-    setSessionStatus("finished");
-    setShowSummary(true);
-  }, [sessionStatus]);
-
   // -------------------------------
   // Focus Score
   // -------------------------------
@@ -91,7 +80,110 @@ export default function StudyPage() {
 
     return Math.max(score, 0);
   }, [faceVisible, phoneDetected, lookingAway, multipleFaces]);
- 
+
+  const startStudy = useCallback(async () => {
+    if (sessionStatus === "paused") {
+      const resumedPauseDuration = pauseDuration + Math.floor((Date.now() - pauseStartedAt.current) / 1000);
+
+      setSaving(true);
+      setSessionError("");
+      try {
+        await updateStudy(sessionId, {
+          status: "active",
+          pauseDuration: resumedPauseDuration,
+        });
+        setPauseDuration(resumedPauseDuration);
+        pauseStartedAt.current = null;
+        setSessionStatus("running");
+      } catch (error) {
+        setSessionError(error.response?.data?.message || "Unable to resume the study session.");
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+
+    if (!canStart || sessionStatus !== "idle") return;
+
+    setSaving(true);
+    setSessionError("");
+    try {
+      const response = await createStudy({
+        subject: subject.trim(),
+        topic: topic.trim(),
+        plannedDuration: 25 * 60,
+      });
+      setSessionId(response.data.study._id);
+      setStudyTime(0);
+      setPauseCount(0);
+      setPauseDuration(0);
+      setSessionStatus("running");
+    } catch (error) {
+      setSessionError(error.response?.data?.message || "Unable to start the study session.");
+    } finally {
+      setSaving(false);
+    }
+  }, [canStart, pauseDuration, sessionId, sessionStatus, subject, topic]);
+
+  const pauseStudy = useCallback(async () => {
+    if (sessionStatus !== "running" || !sessionId) return;
+
+    const nextPauseCount = pauseCount + 1;
+    setSessionStatus("paused");
+    pauseStartedAt.current = Date.now();
+    setPauseCount(nextPauseCount);
+    setSaving(true);
+    setSessionError("");
+
+    try {
+      await updateStudy(sessionId, {
+        status: "paused",
+        pauseCount: nextPauseCount,
+        pauseDuration,
+      });
+    } catch (error) {
+      pauseStartedAt.current = null;
+      setPauseCount(pauseCount);
+      setSessionStatus("running");
+      setSessionError(error.response?.data?.message || "Unable to pause the study session.");
+    } finally {
+      setSaving(false);
+    }
+  }, [pauseCount, pauseDuration, sessionId, sessionStatus]);
+
+  const finishStudy = useCallback(async () => {
+    if (["idle", "finished"].includes(sessionStatus) || !sessionId) return;
+
+    const finalPauseDuration = pauseStartedAt.current
+      ? pauseDuration + Math.floor((Date.now() - pauseStartedAt.current) / 1000)
+      : pauseDuration;
+
+    setSaving(true);
+    setSessionError("");
+    try {
+      await updateStudy(sessionId, {
+        status: "completed",
+        actualDuration: studyTime,
+        pauseDuration: finalPauseDuration,
+        pauseCount,
+        completed: true,
+        focusScore,
+        distractionCount: 0,
+        endTime: new Date().toISOString(),
+        notes,
+      });
+      
+      setPauseDuration(finalPauseDuration);
+      pauseStartedAt.current = null;
+      setSessionStatus("finished");
+      setShowSummary(true);
+    } catch (error) {
+      setSessionError(error.response?.data?.message || "Unable to finish the study session.");
+    } finally {
+      setSaving(false);
+    }
+  }, [focusScore, notes, pauseCount, pauseDuration, sessionId, sessionStatus, studyTime]);
+
   const tittle = "AI Study Session";
   return (
     <DashboardLayout tittle={tittle}>
@@ -116,12 +208,20 @@ export default function StudyPage() {
           <StudyTimer
             status={sessionStatus}
             canStart={canStart}
+            loading={saving}
             onStart={startStudy}
             onPause={pauseStudy}
             onFinish={finishStudy}
             setStudyTime={setStudyTime}
+            seconds={studyTime}
           />
         </div>
+
+        {sessionError && (
+          <p className="mt-4 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+            {sessionError}
+          </p>
+        )}
 
         {/* =======================================
                 Second Row

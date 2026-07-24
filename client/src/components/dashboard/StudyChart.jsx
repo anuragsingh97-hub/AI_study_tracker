@@ -8,22 +8,39 @@ import {
   Area,
   AreaChart,
 } from "recharts";
+import { useMemo } from "react";
 
 import { FaChartLine } from "react-icons/fa";
 
-const data = [
-  { day: "Mon", study: 2 },
-  { day: "Tue", study: 3 },
-  { day: "Wed", study: 1.5 },
-  { day: "Thu", study: 4 },
-  { day: "Fri", study: 2.5 },
-  { day: "Sat", study: 5 },
-  { day: "Sun", study: 3 },
-];
+export default function StudyChart({ studies = [] }) {
+  const { data, totalHours } = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const weekStart = new Date(today);
+    weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
 
-const totalHours = data.reduce((sum, item) => sum + item.study, 0);
+    const days = Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(weekStart);
+      date.setDate(date.getDate() + index);
+      return {
+        day: date.toLocaleDateString(undefined, { weekday: "short" }),
+        date: date.toDateString(),
+        study: 0,
+      };
+    });
 
-export default function StudyChart() {
+    studies.forEach((session) => {
+      const sessionDate = new Date(session.startTime || session.createdAt);
+      const matchingDay = days.find((day) => day.date === sessionDate.toDateString());
+      if (matchingDay) matchingDay.study += (Number(session.actualDuration) || 0) / 3600;
+    });
+
+    return {
+      data: days.map(({ day, study }) => ({ day, study: Number(study.toFixed(2)) })),
+      totalHours: days.reduce((total, day) => total + day.study, 0),
+    };
+  }, [studies]);
+
   return (
     <div className=" w-full bg-slate-900 rounded-3xl border border-slate-800 p-6" style={{marginTop:"2px"}}>
 
@@ -59,7 +76,7 @@ export default function StudyChart() {
         <div className="text-right">
 
           <h3 className="text-3xl font-bold text-white">
-            {totalHours}h
+            {totalHours.toFixed(1)}h
           </h3>
 
           <p className="text-sm text-slate-400">

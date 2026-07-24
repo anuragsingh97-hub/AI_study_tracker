@@ -29,7 +29,11 @@ const studySessionSchema = new mongoose.Schema(
     faceVisibleTime: Number,
 
     breakCount: Number,
-    status: { type: String, enum: ["active", "completed", "cancelled"], default: "active" },
+    status: {
+      type: String,
+      enum: ["active", "completed", "cancelled"],
+      default: "active",
+    },
   },
   { timestamps: true },
 );

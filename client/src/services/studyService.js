@@ -1,33 +1,32 @@
-import API from "../api/axios";
+import {
+  createStudy,
+  getStudies,
+  updateStudy,
+} from "../api/studyApi";
 
 export const startStudy = async (
   subject
 ) => {
-  const res = await API.post(
-    "/study/start",
-    {
-      subject,
-    }
-  );
+  const res = await createStudy({ subject });
 
-  return res.data;
+  return res.data.study;
 };
 
 export const endStudy = async (
   id
 ) => {
-  const res = await API.put(
-    `/study/end/${id}`
-  );
+  const res = await updateStudy(id, {
+    status: "completed",
+    completed: true,
+    endTime: new Date().toISOString(),
+  });
 
-  return res.data;
+  return res.data.study;
 };
 
 export const getStudySessions =
   async () => {
-    const res = await API.get(
-      "/study"
-    );
+    const res = await getStudies();
 
-    return res.data;
+    return res.data.studies;
   };

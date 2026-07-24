@@ -16,20 +16,21 @@ export default function FaceStatus({
   lookingAway,
   multipleFaces,
   focusScore,
-   headPose,
+  headPose,
 }) {
   const noFaceVisible = !faceDetected || headPose.direction === "No Face";
   const Item = ({ icon, title, ok }) => (
-    <div className="flex justify-between items-center bg-slate-800 rounded-xl p-3" style={{padding:"1px",margin:"3px"}}>
+    <div
+      className="flex justify-between items-center bg-slate-800 rounded-xl p-3"
+      style={{ padding: "1px", margin: "3px" }}
+    >
       <div className="flex items-center gap-2 text-slate-300">
         {icon}
         {title}
       </div>
 
       <span
-        className={`font-semibold ${
-          ok ? "text-green-400" : "text-red-400"
-        }`}
+        className={`font-semibold ${ok ? "text-green-400" : "text-red-400"}`}
       >
         {ok ? "Yes" : "No"}
       </span>
@@ -40,14 +41,13 @@ export default function FaceStatus({
     <motion.div
       initial={{ x: 20 }}
       animate={{ x: 0 }}
-      className="bg-slate-900 rounded-3xl border border-slate-700 p-6 shadow-xl"style={{padding:"10px",margin:"3px"}}
+      className="bg-slate-900 rounded-3xl border border-slate-700 p-6 shadow-xl"
+      style={{ padding: "10px", margin: "3px" }}
     >
       <div className="flex items-center gap-3 mb-6">
         <BrainCircuit className="text-blue-400" />
 
-        <h2 className="text-white text-xl font-bold">
-          AI Status
-        </h2>
+        <h2 className="text-white text-xl font-bold">AI Status</h2>
       </div>
 
       <div className="flex justify-center mb-6">
@@ -57,24 +57,18 @@ export default function FaceStatus({
             focusScore >= 80
               ? "bg-green-500/20 text-green-400"
               : focusScore >= 50
-              ? "bg-yellow-500/20 text-yellow-400"
-              : "bg-red-500/20 text-red-400"
+                ? "bg-yellow-500/20 text-yellow-400"
+                : "bg-red-500/20 text-red-400"
           }`}
         >
           {focusScore}%
         </div>
       </div>
 
-      <p className="text-center text-slate-400 mb-5">
-        Focus Score
-      </p>
+      <p className="text-center text-slate-400 mb-5">Focus Score</p>
 
       <div className="space-y-3">
-        <Item
-          title="Face"
-          icon={<ShieldCheck size={18} />}
-          ok={faceDetected}
-        />
+        <Item title="Face" icon={<ShieldCheck size={18} />} ok={faceDetected} />
 
         <Item
           title="Phone Detected"
@@ -94,9 +88,9 @@ export default function FaceStatus({
               ? "Requesting microphone access…"
               : microphoneStatus === "inactive"
                 ? "Microphone starts when the study session starts."
-              : microphoneStatus === "blocked"
-                ? "Allow microphone access to enable voice detection."
-                : "Voice detection is unavailable in this browser."}
+                : microphoneStatus === "blocked"
+                  ? "Allow microphone access to enable voice detection."
+                  : "Voice detection is unavailable in this browser."}
           </p>
         )}
 
@@ -113,31 +107,28 @@ export default function FaceStatus({
         />
       </div>
       <div className="mt-4 rounded-xl bg-slate-800 p-4">
-  <h3 className="text-sm text-slate-400 mb-2">
-    Head Direction
-  </h3>
+        <h3 className="text-sm text-slate-400 mb-2">Head Direction</h3>
 
-  <div className="flex items-center justify-between">
-    <span className="text-white font-medium">
-      {noFaceVisible ? "No Face" : headPose.direction}
-    </span>
+        <div className="flex items-center justify-between">
+          <span className="text-white font-medium">
+            {noFaceVisible ? "No Face" : headPose.direction}
+          </span>
 
-    <span
-      className={`text-sm font-semibold ${
-        noFaceVisible || headPose.lookingAway
-          ? "text-red-400"
-          : "text-green-400"
-      }`}
-    >
-      {noFaceVisible
-        ? "Face not visible"
-        : headPose.lookingAway
-          ? "Looking Away"
-          : "Focused"}
-    </span>
-  </div>
-</div>
-      
+          <span
+            className={`text-sm font-semibold ${
+              noFaceVisible || headPose.lookingAway
+                ? "text-red-400"
+                : "text-green-400"
+            }`}
+          >
+            {noFaceVisible
+              ? "Face not visible"
+              : headPose.lookingAway
+                ? "Looking Away"
+                : "Focused"}
+          </span>
+        </div>
+      </div>
     </motion.div>
   );
 }

@@ -5,6 +5,7 @@ const studySessionSchema = new mongoose.Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
 
     goalId: {
@@ -12,17 +13,12 @@ const studySessionSchema = new mongoose.Schema(
       ref: "Goal",
     },
 
-    subject: String,
-
-    topic: String,
-
-    startTime: Date,
-
+    subject: { type: String, required: true, trim: true },
+    topic: { type: String, trim: true, default: "" },
+    startTime: { type: Date, required: true },
     endTime: Date,
-
-    duration: Number,
-
-    focusScore: Number,
+    duration: { type: Number, min: 0, default: 0 },
+    focusScore: { type: Number, min: 0, max: 100, default: 0 },
 
     phoneDetections: Number,
 
@@ -33,6 +29,7 @@ const studySessionSchema = new mongoose.Schema(
     faceVisibleTime: Number,
 
     breakCount: Number,
+    status: { type: String, enum: ["active", "completed", "cancelled"], default: "active" },
   },
   { timestamps: true },
 );

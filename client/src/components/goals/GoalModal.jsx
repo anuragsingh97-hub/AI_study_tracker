@@ -1,5 +1,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
+import { useState } from "react";
+// import API from "./axios";
+
 
 const blankGoal = {
   title: "",
@@ -17,21 +20,33 @@ const blankGoal = {
 
 export default function GoalModal({ goal, onClose, onSave }) {
   const value = goal ?? blankGoal;
-  const submit = (event) => {
+  const [saveError, setSaveError] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const submit = async (event) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    onSave({
-      ...value,
-      title: form.get("title").trim(),
-      subject: form.get("subject").trim(),
-      description: form.get("description").trim(),
-      goalType: form.get("goalType"),
-      target: Number(form.get("target")),
-      deadline: form.get("deadline"),
-      priority: form.get("priority"),
-      difficulty: form.get("difficulty"),
-      notes: form.get("notes").trim(),
-    });
+    setSaveError("");
+    setSaving(true);
+
+    try {
+      await onSave({
+        ...value,
+        title: form.get("title").trim(),
+        subject: form.get("subject").trim(),
+        description: form.get("description").trim(),
+        goalType: form.get("goalType"),
+        target: Number(form.get("target")),
+        deadline: form.get("deadline"),
+        priority: form.get("priority"),
+        difficulty: form.get("difficulty"),
+        notes: form.get("notes").trim(),
+      });
+    } catch (error) {
+      setSaveError(error.response?.data?.message ?? "Could not save this goal. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
   const Field = ({ label, children }) => (
     <label className="block text-sm text-slate-300">
@@ -167,6 +182,11 @@ export default function GoalModal({ goal, onClose, onSave }) {
               className={`${input} mt-1.5 resize-none`}
             />
           </Field>
+          {saveError && (
+            <p role="alert" className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+              {saveError}
+            </p>
+          )}
           <div className="mt-6 flex justify-end gap-3">
             <button
               type="button"
@@ -175,8 +195,11 @@ export default function GoalModal({ goal, onClose, onSave }) {
             >
               Cancel
             </button>
-            <button className="rounded-xl bg-blue-600 px-5 py-2.5 font-semibold text-white hover:bg-blue-500">
-              {goal ? "Save Changes" : "Create Goal"}
+            <button
+              disabled={saving}
+              className="rounded-xl bg-blue-600 px-5 py-2.5 font-semibold text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {saving ? "Saving..." : goal ? "Save Changes" : "Create Goal"}
             </button>
           </div>
         </motion.form>

@@ -33,16 +33,21 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
 
+    // `profileImage` is used by the profile UI. Keep avatar for compatibility
+    // with existing users while new profile uploads use this field.
+    profileImage: {
+      type: String,
+      default: "",
+    },
+
     bio: {
       type: String,
       default: "",
     },
 
-    college: String,
-
-    branch: String,
-
-    semester: Number,
+    college: { type: String, trim: true, maxlength: 100, default: "" },
+    branch: { type: String, trim: true, maxlength: 100, default: "" },
+    semester: { type: Number, min: 1, max: 12 },
 
     studyStreak: {
       type: Number,
@@ -57,6 +62,16 @@ const userSchema = new mongoose.Schema(
     focusScore: {
       type: Number,
       default: 0,
+      min: 0,
+      max: 100,
+    },
+
+    socialLinks: {
+      github: { type: String, default: "" },
+      linkedin: { type: String, default: "" },
+      portfolio: { type: String, default: "" },
+      leetcode: { type: String, default: "" },
+      codeforces: { type: String, default: "" },
     },
   },
   { timestamps: true },

@@ -1,9 +1,9 @@
-import axios from "./axiosInstance";
+import API from "../api/axios";
 
 export const startStudy = async (
   subject
 ) => {
-  const res = await axios.post(
+  const res = await API.post(
     "/study/start",
     {
       subject,
@@ -16,7 +16,7 @@ export const startStudy = async (
 export const endStudy = async (
   id
 ) => {
-  const res = await axios.put(
+  const res = await API.put(
     `/study/end/${id}`
   );
 
@@ -25,7 +25,7 @@ export const endStudy = async (
 
 export const getStudySessions =
   async () => {
-    const res = await axios.get(
+    const res = await API.get(
       "/study"
     );
 

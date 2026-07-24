@@ -3,8 +3,9 @@ import StudySession from "../models/StudySession.js";
 export const startSession = async (req, res) => {
   try {
     const session = await StudySession.create({
-      user: req.user.id,
+      userId: req.user.id,
       subject: req.body.subject,
+      topic: req.body.topic,
       startTime: new Date(),
     });
 
@@ -18,7 +19,7 @@ export const startSession = async (req, res) => {
 
 export const endSession = async (req, res) => {
   try {
-    const session = await StudySession.findById(req.params.id);
+    const session = await StudySession.findOne({ _id: req.params.id, userId: req.user.id });
 
     if (!session) {
       return res.status(404).json({
@@ -49,7 +50,7 @@ export const endSession = async (req, res) => {
 export const getSessions = async (req, res) => {
   const sessions =
     await StudySession.find({
-      user: req.user.id,
+      userId: req.user.id,
     }).sort({
       createdAt: -1,
     });

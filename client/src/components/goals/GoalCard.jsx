@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
-import {
+import { useEffect,useRef } from "react";
+import{
   CalendarDays,
   Check,
   ChevronDown,
@@ -40,11 +41,24 @@ export default function GoalCard({
   );
   const addMilestone = (event) => {
     event.preventDefault();
+    // console.log("mil:",milestoneTitle);
     if (milestoneTitle.trim()) {
-      onAddMilestone(goal.id, milestoneTitle.trim());
+      onAddMilestone(goal._id, milestoneTitle.trim());
       setMilestoneTitle("");
     }
+    console.log("mil:", onAddMilestone);
   };
+
+const bottomRef = useRef(null);
+
+useEffect(() => {
+  bottomRef.current?.scrollIntoView({
+    behavior: "smooth",
+    block: "end",
+  });
+}, [goal.milestones]);
+
+  // console.log("mil:",milestoneTitle);
   return (
     <motion.article
       layout
@@ -123,21 +137,22 @@ export default function GoalCard({
       </div>
       <div className="mt-5 border-t border-slate-800 pt-4">
         <p className="mb-2 text-sm font-semibold text-slate-200">Milestones</p>
-        <div className="space-y-2">
+        <div className="max-h-25 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
           {goal.milestones.map((milestone) => (
             <label
-              key={milestone.id}
+              key={milestone._id}
               className="flex cursor-pointer items-center gap-2 text-sm text-slate-400"
             >
               <input
                 type="checkbox"
                 checked={milestone.completed}
-                onChange={() => onMilestone(goal.id, milestone.id)}
+                onChange={() => onMilestone(goal._id, milestone._id)}
                 className="h-4 w-4 accent-blue-500"
               />
+
               <span
                 className={
-                  milestone.completed ? "text-slate-500 line-through" : ""
+                  milestone.completed ? "line-through text-slate-500" : ""
                 }
               >
                 {milestone.completed && (
@@ -147,6 +162,7 @@ export default function GoalCard({
               </span>
             </label>
           ))}
+          <div ref={bottomRef}></div>
         </div>
         <form onSubmit={addMilestone} className="mt-3 flex gap-2">
           <input

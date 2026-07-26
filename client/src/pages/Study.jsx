@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, useCallback } from "react";
+import { useState, useRef, useMemo, useCallback, useEffect } from "react";
 
 import DashboardLayout from "../layouts/DashboardLayout";
 
@@ -44,9 +44,16 @@ export default function StudyPage() {
   // Temporary AI states
   // These will later come from useFaceDetection()
   const monitoringActive = sessionStatus === "running";
-  const { objects, phoneDetected } = useYOLODetection(videoRef, monitoringActive);
-  const { voiceDetected, microphoneStatus } = useVoiceDetection(monitoringActive);
-  const { faceDetected, faceCount, detections } = useFaceDetection(videoRef, monitoringActive);
+  const { objects, phoneDetected } = useYOLODetection(
+    videoRef,
+    monitoringActive,
+  );
+  const { voiceDetected, microphoneStatus } =
+    useVoiceDetection(monitoringActive);
+  const { faceDetected, faceCount, detections } = useFaceDetection(
+    videoRef,
+    monitoringActive,
+  );
   const { headPose } = useFaceLandmarker(videoRef, monitoringActive);
 
   const faceVisible = faceDetected && headPose.direction !== "No Face";
@@ -59,14 +66,24 @@ export default function StudyPage() {
   // Statistics
   // -------------------------------
 
-  const [studyTime, setStudyTime] = useState(0);
   const [pauseCount, setPauseCount] = useState(0);
-  const [sessions] = useState(15);
+  const [sessions] = useState(0);
   const canStart = Boolean(subject.trim() && topic.trim() && goal.trim());
 
   // -------------------------------
   // Focus Score
   // -------------------------------
+  const [studyTime, setStudyTime] = useState(0);
+
+  useEffect(() => {
+    if (sessionStatus !== "running") return;
+
+    const timer = setInterval(() => {
+      setStudyTime((prev) => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [sessionStatus]);
 
   const focusScore = useMemo(() => {
     // Focus cannot be verified while the camera cannot see the user.
@@ -83,7 +100,9 @@ export default function StudyPage() {
 
   const startStudy = useCallback(async () => {
     if (sessionStatus === "paused") {
-      const resumedPauseDuration = pauseDuration + Math.floor((Date.now() - pauseStartedAt.current) / 1000);
+      const resumedPauseDuration =
+        pauseDuration +
+        Math.floor((Date.now() - pauseStartedAt.current) / 1000);
 
       setSaving(true);
       setSessionError("");
@@ -96,7 +115,10 @@ export default function StudyPage() {
         pauseStartedAt.current = null;
         setSessionStatus("running");
       } catch (error) {
-        setSessionError(error.response?.data?.message || "Unable to resume the study session.");
+        setSessionError(
+          error.response?.data?.message ||
+            "Unable to resume the study session.",
+        );
       } finally {
         setSaving(false);
       }
@@ -119,7 +141,9 @@ export default function StudyPage() {
       setPauseDuration(0);
       setSessionStatus("running");
     } catch (error) {
-      setSessionError(error.response?.data?.message || "Unable to start the study session.");
+      setSessionError(
+        error.response?.data?.message || "Unable to start the study session.",
+      );
     } finally {
       setSaving(false);
     }
@@ -145,7 +169,9 @@ export default function StudyPage() {
       pauseStartedAt.current = null;
       setPauseCount(pauseCount);
       setSessionStatus("running");
-      setSessionError(error.response?.data?.message || "Unable to pause the study session.");
+      setSessionError(
+        error.response?.data?.message || "Unable to pause the study session.",
+      );
     } finally {
       setSaving(false);
     }
@@ -172,17 +198,27 @@ export default function StudyPage() {
         endTime: new Date().toISOString(),
         notes,
       });
-      
+
       setPauseDuration(finalPauseDuration);
       pauseStartedAt.current = null;
       setSessionStatus("finished");
       setShowSummary(true);
     } catch (error) {
-      setSessionError(error.response?.data?.message || "Unable to finish the study session.");
+      setSessionError(
+        error.response?.data?.message || "Unable to finish the study session.",
+      );
     } finally {
       setSaving(false);
     }
-  }, [focusScore, notes, pauseCount, pauseDuration, sessionId, sessionStatus, studyTime]);
+  }, [
+    focusScore,
+    notes,
+    pauseCount,
+    pauseDuration,
+    sessionId,
+    sessionStatus,
+    studyTime,
+  ]);
 
   const tittle = "AI Study Session";
   return (
@@ -201,7 +237,9 @@ export default function StudyPage() {
               setSubject={setSubject}
               setTopic={setTopic}
               setGoal={setGoal}
-              disabled={sessionStatus === "running" || sessionStatus === "paused"}
+              disabled={
+                sessionStatus === "running" || sessionStatus === "paused"
+              }
             />
           </div>
 
@@ -212,8 +250,7 @@ export default function StudyPage() {
             onStart={startStudy}
             onPause={pauseStudy}
             onFinish={finishStudy}
-            setStudyTime={setStudyTime}
-            seconds={studyTime}
+            studyTime={studyTime}
           />
         </div>
 
@@ -257,7 +294,6 @@ export default function StudyPage() {
 
         <div className="mt-8">
           <StudyStats
-            studyTime={studyTime}
             pauseCount={pauseCount}
             focusScore={focusScore}
             sessions={sessions}

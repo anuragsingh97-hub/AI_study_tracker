@@ -17,7 +17,7 @@ const WelcomeCard = () => {
       initial={{ opacity: 0, y: -25 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="mb-8 h-30 rounded-xl bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 m-8 shadow-xl"
+      className="mb-8 h-25 rounded-xl bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 m-8 shadow-xl"
     >
       <div className="flex flex-col md:flex-row items-center justify-between gap-8">
         {/* Left */}

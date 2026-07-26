@@ -37,7 +37,7 @@ export default function RecentSessions({ sessions = [], loading = false, error =
         <span className="text-sm text-blue-400" style={{ marginRight: "10px" }}>{sessions.length} total</span>
       </div>
 
-      <div className="space-y-4 max-h-[30rem] overflow-y-auto pr-1">
+      <div className="bg-slate-900 rounded-2xl p-5 max-h-[265px] overflow-y-auto">
         {loading && <p className="px-5 py-4 text-sm text-slate-400">Loading sessions...</p>}
         {!loading && error && <p className="px-5 py-4 text-sm text-red-300">{error}</p>}
         {!loading && !error && sessions.length === 0 && <p className="px-5 py-4 text-sm text-slate-400">No study sessions yet.</p>}

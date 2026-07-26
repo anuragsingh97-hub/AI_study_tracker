@@ -10,32 +10,14 @@ export default function StudyTimer({
   onStart,
   onPause,
   onFinish,
-  setStudyTime,
+  studyTime,
   loading = false,
 }) {
-  const [seconds, setSeconds] = useState(INITIAL_TIME);
+
   const running = status === "running";
-
-  useEffect(() => {
-    if (status === "finished") setSeconds(INITIAL_TIME);
-  }, [status]);
-
-  useEffect(() => {
-    if (!running) return;
-
-    const timer = setInterval(() => {
-      setSeconds((previous) => {
-        setStudyTime((time) => time + 1);
-        return previous + 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [running, setStudyTime]);
-
-  const formattedTime = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(
-    seconds % 60,
-  ).padStart(2, "0")}`;
+  const formattedTime =
+  `${String(Math.floor(studyTime / 60)).padStart(2, "0")}:` +
+  `${String(studyTime % 60).padStart(2, "0")}`;
   const startLabel = status === "paused" ? "Resume Study" : "Start Study";
 
   return (

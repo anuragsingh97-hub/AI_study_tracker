@@ -7,7 +7,8 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import studyRoutes from "./routes/studyRoutes.js";
 import goalRoutes from "./routes/goalRoutes.js";
-
+import testRoutes from "./routes/testRoutes.js";
+import quizRoutes from "./routes/quizRoutes.js";
 
 dotenv.config();
 
@@ -34,6 +35,9 @@ app.get("/", (req, res) => {
 app.use("/api/auth",authRoutes);
 app.use("/api/study", studyRoutes);
 app.use("/api/goals", goalRoutes);
+app.use("/api/test", testRoutes);
+app.use("/api/quiz", quizRoutes);
+// console.log("Gemini Key:", process.env.GEMINI_API_KEY);
 
 const PORT = process.env.PORT || 5000;
 

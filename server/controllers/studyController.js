@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Study from "../models/Study.js";
+import { createQuizForStudy } from "../controllers/quizController.js";
 
 const writableFields = [
   "subject",
@@ -86,6 +87,12 @@ export const updateStudy = async (req, res) => {
 
     Object.assign(study, studyPayload(req.body));
     await study.save();
+
+    // This is idempotent: it reuses the existing quiz and also retries a prior
+    // generation failure when a completed study is updated again.
+    if (study.completed) {
+      await createQuizForStudy(study);
+    }
 
     return res.status(200).json({ success: true, message: "Study session updated", study });
   } catch (error) {

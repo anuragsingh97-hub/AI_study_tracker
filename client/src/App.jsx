@@ -10,6 +10,9 @@ import Study from "./pages/Study";
 import Goals from "./pages/Goals";
 import Profile from "./pages/Profile";
 import AIAssistant from "./pages/AIAssistant";
+import QuizPage from "./pages/QuizPage";
+import QuizResultPage from "./pages/QuizResultPage";
+import QuizReviewPage from "./pages/QuizReviewPage";
 function App() {
   return (
     <Routes>
@@ -71,6 +74,9 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route path="/quiz/:studyId" element={<ProtectedRoute><QuizPage /></ProtectedRoute>} />
+      <Route path="/quiz/:studyId/result" element={<ProtectedRoute><QuizResultPage /></ProtectedRoute>} />
+      <Route path="/quiz/:studyId/review" element={<ProtectedRoute><QuizReviewPage /></ProtectedRoute>} />
     </Routes>
   );
 }

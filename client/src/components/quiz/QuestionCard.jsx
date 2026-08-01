@@ -1,0 +1,3 @@
+import Option from "./Option";
+
+export default function QuestionCard({ question, questionNumber, selectedAnswer, onSelect }) { return <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-5 shadow-xl shadow-slate-950/20 sm:p-8"><p className="text-sm font-semibold text-cyan-400">Question {questionNumber}</p><h2 className="mt-3 text-lg font-semibold leading-relaxed text-white sm:text-xl">{question.question}</h2><div className="mt-7 space-y-3">{(question.options ?? []).map((option, index) => <Option key={`${option}-${index}`} label={option} selected={selectedAnswer === option} onSelect={() => onSelect(option)} />)}</div></section>; }

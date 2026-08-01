@@ -1,0 +1,1 @@
+export default function QuizState({ title, message, action }) { return <div className="mx-auto max-w-lg rounded-3xl border border-slate-800 bg-slate-900 p-8 text-center"><h1 className="text-xl font-bold text-white">{title}</h1><p className="mt-2 text-slate-400">{message}</p>{action && <div className="mt-6">{action}</div>}</div>; }

@@ -1,0 +1,1 @@
+export default function QuizSkeleton() { return <div className="mx-auto max-w-4xl animate-pulse space-y-5"><div className="h-56 rounded-3xl bg-slate-800" /><div className="h-96 rounded-3xl bg-slate-800" /></div>; }

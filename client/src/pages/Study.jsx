@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import DashboardLayout from "../layouts/DashboardLayout";
 
@@ -17,6 +18,7 @@ import useVoiceDetection from "../hooks/useVoiceDetection";
 import { createStudy, updateStudy } from "../api/studyApi";
 
 export default function StudyPage() {
+  const navigate = useNavigate();
   // -------------------------------
   // Session Information
   // -------------------------------
@@ -202,7 +204,9 @@ export default function StudyPage() {
       setPauseDuration(finalPauseDuration);
       pauseStartedAt.current = null;
       setSessionStatus("finished");
-      setShowSummary(true);
+      // The server generates and persists the quiz when a study is completed.
+      // The quiz screen fetches it by this stable study id, so refresh is safe.
+      navigate(`/quiz/${sessionId}`);
     } catch (error) {
       setSessionError(
         error.response?.data?.message || "Unable to finish the study session.",

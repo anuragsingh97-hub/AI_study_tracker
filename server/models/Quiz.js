@@ -34,6 +34,13 @@ const quizSchema = new mongoose.Schema(
       required: true,
     },
 
+    study: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Study",
+      required: true,
+      index: true,
+    },
+
     subject: {
       type: String,
       required: true,
@@ -64,6 +71,27 @@ const quizSchema = new mongoose.Schema(
     completed: {
       type: Boolean,
       default: false,
+    },
+
+    correct: { type: Number, default: 0 },
+    wrong: { type: Number, default: 0 },
+    skipped: { type: Number, default: 0 },
+    accuracy: { type: Number, default: 0 },
+    timeTaken: { type: Number, default: 0 },
+    weakTopics: { type: [String], default: [] },
+    completedAt: { type: Date },
+    answerReview: {
+      type: [
+        {
+          questionId: String,
+          question: String,
+          userAnswer: String,
+          correctAnswer: String,
+          explanation: String,
+          isCorrect: Boolean,
+        },
+      ],
+      default: [],
     },
 
     createdAt: {

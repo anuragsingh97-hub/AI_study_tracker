@@ -22,7 +22,7 @@ export default function FaceStatus({
   const Item = ({ icon, title, ok }) => (
     <div
       className="flex justify-between items-center bg-slate-800 rounded-xl p-3"
-      style={{ padding: "1px", margin: "3px" }}
+      
     >
       <div className="flex items-center gap-2 text-slate-300">
         {icon}
@@ -41,8 +41,8 @@ export default function FaceStatus({
     <motion.div
       initial={{ x: 20 }}
       animate={{ x: 0 }}
-      className="bg-slate-900 rounded-3xl border border-slate-700 p-6 shadow-xl"
-      style={{ padding: "10px", margin: "3px" }}
+      className="bg-slate-900 rounded-3xl border border-slate-700 p-4 shadow-xl"
+      
     >
       <div className="flex items-center gap-3 mb-6">
         <BrainCircuit className="text-blue-400" />
@@ -65,9 +65,9 @@ export default function FaceStatus({
         </div>
       </div>
 
-      <p className="text-center text-slate-400 mb-5">Focus Score</p>
+      
 
-      <div className="space-y-3">
+      <div className="space-y-1">
         <Item title="Face" icon={<ShieldCheck size={18} />} ok={faceDetected} />
 
         <Item
@@ -106,8 +106,8 @@ export default function FaceStatus({
           ok={!noFaceVisible && !multipleFaces}
         />
       </div>
-      <div className="mt-4 rounded-xl bg-slate-800 p-4">
-        <h3 className="text-sm text-slate-400 mb-2">Head Direction</h3>
+      <div className="mt-1 rounded-xl bg-slate-800 p-4">
+        
 
         <div className="flex items-center justify-between">
           <span className="text-white font-medium">

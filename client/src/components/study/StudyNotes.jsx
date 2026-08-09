@@ -7,7 +7,7 @@ export default function StudyNotes({ notes, setNotes }) {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       className="bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-xl"
-      style={{ padding: "10px", margin: "3px" }}
+      
     >
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">

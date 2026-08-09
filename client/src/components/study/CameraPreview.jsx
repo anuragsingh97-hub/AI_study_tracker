@@ -15,7 +15,6 @@ export default function CameraPreview({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="bg-slate-900 rounded-3xl border border-slate-700 overflow-hidden shadow-xl"
-      style={{ padding: "10px", margin: "3px" }}
     >
       {/* Header */}
       <div className="flex justify-between items-center p-5 border-b border-slate-700">
@@ -64,7 +63,7 @@ export default function CameraPreview({
             className="w-full h-[350px] object-cover"
           />
         ) : (
-          <div className="flex h-[350px] items-center justify-center bg-slate-950 px-6 text-center">
+          <div className="flex h-[466px] items-center justify-center bg-slate-950 px-6 text-center">
             <div>
               <Camera className="mx-auto mb-3 text-slate-500" size={36} />
               <p className="font-medium text-slate-200">Camera is paused</p>

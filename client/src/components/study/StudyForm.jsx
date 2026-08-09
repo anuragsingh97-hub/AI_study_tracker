@@ -16,8 +16,8 @@ export default function StudyForm({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="h-60 bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-xl"
-      style={{ padding: "9px", margin: "2px" }}
+      className="h-100 bg-slate-900 rounded-3xl p-2 sm:p-8 border border-slate-700 shadow-xl"
+      
     >
       <h2 className="text-2xl font-bold text-white mb-6">Study Session</h2>
 

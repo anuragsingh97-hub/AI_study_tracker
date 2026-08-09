@@ -42,14 +42,14 @@ export default function StudyChart({ studies = [] }) {
   }, [studies]);
 
   return (
-    <div className=" w-full bg-slate-900 rounded-3xl border border-slate-800 p-6" style={{marginTop:"2px"}}>
+    <div className=" w-full bg-slate-900 rounded-3xl border border-slate-800 p-6">
 
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
 
         <div>
 
-          <div className="flex items-center gap-3" style={{margin:"5px"}}>
+          <div className="flex items-center gap-3">
 
             <div className="h-11 w-11 rounded-xl bg-blue-500/20 flex items-center justify-center">
 

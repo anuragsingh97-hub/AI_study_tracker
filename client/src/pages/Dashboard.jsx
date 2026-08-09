@@ -150,7 +150,7 @@ const Dashboard = () => {
         </p>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-1 mt-3">
         <StatsCard
           title="Today's Study"
           value={loading ? "—" : formatDuration(dashboard.todayDuration)}
@@ -189,14 +189,14 @@ const Dashboard = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-2 mt-2">
         <div className="xl:col-span-2">
           <StudyChart studies={studies} />
         </div>
         <PomodoroCard />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-2 mt-2">
         <GoalProgress goals={dashboard.weeklyProgress} loading={loading} />
         <RecentSessions sessions={studies} loading={loading} error={error} />
       </div>

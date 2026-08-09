@@ -39,8 +39,8 @@ export default function PomodoroCard() {
 
   return (
     <div
-      className="bg-slate-900 rounded-3xl border border-slate-800 p-6"
-      style={{ marginTop: "2px" }}
+      className="bg-slate-900 rounded-3xl border border-slate-800 p-2"
+    
     >
      {/* Header */}
 <div className="flex items-start justify-between mb-8">
@@ -90,7 +90,7 @@ export default function PomodoroCard() {
       <div className="flex justify-center mb-10">
         <div
           className="h-56 w-56 rounded-full bg-slate-800 border-4 border-blue-500 flex items-center justify-center shadow-lg"
-          style={{ margin: "5px" }}
+          
         >
           <div className="text-center">
             <h1 className="text-5xl font-bold text-white tracking-wider">
@@ -104,7 +104,7 @@ export default function PomodoroCard() {
 
       {/* Buttons */}
 
-      <div className="grid grid-cols-3 gap-3" style={{ marginTop: "25px", padding:"15px"}}>
+      <div className="grid grid-cols-3 gap-3" >
         <button
           onClick={() => setRunning(true)}
           className="flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 transition text-white font-semibold"

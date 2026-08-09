@@ -28,22 +28,22 @@ const formatDate = (date) => {
 
 export default function RecentSessions({ sessions = [], loading = false, error = "" }) {
   return (
-    <div className="bg-slate-900 rounded-3xl p-6 border border-slate-800" style={{ marginTop: "2px" }}>
+    <div className="bg-slate-900 rounded-3xl p-2 border border-slate-800" >
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-white" style={{ marginLeft: "15px", marginTop: "3px" }}>
+        <h2 className="text-xl font-bold text-white" >
           Recent Sessions
         </h2>
 
-        <span className="text-sm text-blue-400" style={{ marginRight: "10px" }}>{sessions.length} total</span>
+        <span className="text-sm text-blue-400" >{sessions.length} total</span>
       </div>
 
-      <div className="bg-slate-900 rounded-2xl p-5 max-h-[265px] overflow-y-auto">
+      <div className="bg-slate-900 rounded-2xl p-2 max-h-[300px] overflow-y-auto">
         {loading && <p className="px-5 py-4 text-sm text-slate-400">Loading sessions...</p>}
         {!loading && error && <p className="px-5 py-4 text-sm text-red-300">{error}</p>}
         {!loading && !error && sessions.length === 0 && <p className="px-5 py-4 text-sm text-slate-400">No study sessions yet.</p>}
 
         {sessions.map((session) => (
-          <div key={session._id} className="flex items-center justify-between bg-slate-800/70 border border-slate-700 rounded-2xl px-5 py-4 hover:bg-slate-800 transition" style={{ margin: "3px" }}>
+          <div key={session._id} className="flex items-center justify-between bg-slate-800/70 border border-slate-700 rounded-2xl px-2 py-2 hover:bg-slate-800 transition mt-1" >
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl bg-blue-600/20 flex items-center justify-center text-blue-400 font-bold text-lg">
                 {(session.subject || "S").charAt(0).toUpperCase()}
@@ -54,8 +54,8 @@ export default function RecentSessions({ sessions = [], loading = false, error =
               </div>
             </div>
             <div className="text-right">
-              <p className="text-blue-400 font-semibold" style={{ marginRight: "10px" }}>{formatDuration(session.actualDuration)}</p>
-              <p className="text-xs text-slate-500" style={{ marginRight: "10px" }}>{session.status === "active" ? "In progress" : "Study Time"}</p>
+              <p className="text-blue-400 font-semibold" >{formatDuration(session.actualDuration)}</p>
+              <p className="text-xs text-slate-500" >{session.status === "active" ? "In progress" : "Study Time"}</p>
             </div>
           </div>
         ))}

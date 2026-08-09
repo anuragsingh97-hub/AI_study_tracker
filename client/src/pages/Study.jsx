@@ -227,12 +227,12 @@ export default function StudyPage() {
   const tittle = "AI Study Session";
   return (
     <DashboardLayout tittle={tittle}>
-      <div className="min-h-screen bg-slate-950 p-4 sm:p-6 lg:p-8">
+      <div className="min-h-screen bg-slate-950 p-2 sm:p-2 lg:p-1">
         {/* =======================================
                 First Row
            ======================================= */}
 
-        <div className="grid lg:grid-cols-3 gap-5 lg:gap-8">
+        <div className="grid lg:grid-cols-3 gap-2 lg:gap-2">
           <div className="lg:col-span-2">
             <StudyForm
               subject={subject}
@@ -259,7 +259,7 @@ export default function StudyPage() {
         </div>
 
         {sessionError && (
-          <p className="mt-4 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          <p className="mt-2 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
             {sessionError}
           </p>
         )}
@@ -268,7 +268,7 @@ export default function StudyPage() {
                 Second Row
            ======================================= */}
 
-        <div className="grid lg:grid-cols-3 gap-5 lg:gap-8 mt-5 lg:mt-8">
+        <div className="grid lg:grid-cols-3 gap-5 lg:gap-2 mt-2 lg:mt-2">
           <div className="lg:col-span-2">
             <CameraPreview
               webcamRef={videoRef}
@@ -296,7 +296,7 @@ export default function StudyPage() {
                 Third Row
            ======================================= */}
 
-        <div className="mt-8">
+        <div className="mt-2">
           <StudyStats
             pauseCount={pauseCount}
             focusScore={focusScore}
@@ -308,7 +308,7 @@ export default function StudyPage() {
                 Fourth Row
            ======================================= */}
 
-        <div className="grid lg:grid-cols-2 gap-5 lg:gap-8 mt-5 lg:mt-8">
+        <div className="grid lg:grid-cols-2 gap-5 lg:gap-2 mt-2 lg:mt-2">
           <StudyNotes notes={notes} setNotes={setNotes} />
 
           <StudyQuote />

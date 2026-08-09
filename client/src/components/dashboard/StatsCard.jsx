@@ -11,14 +11,14 @@ const StatsCard = ({
     <motion.div
       whileHover={{ y: -6, scale: 1.03 }}
       transition={{ duration: 0.25 }}
-      className="h-48 rounded-2xl border border-slate-800 bg-slate-900 shadow-lg hover:border-blue-500/40 hover:shadow-blue-500/10" style={{margin:"2px"}}
+      className="h-48 rounded-2xl border border-slate-800 bg-slate-900 shadow-lg hover:border-blue-500/40 hover:shadow-blue-500/10"
     >
       <div className="flex h-full flex-col items-center justify-center text-center">
        
        
 
         {/* Title */}
-        <p className="text-sm font-medium text-slate-400" style={{marginBottom:"15px"}}>
+        <p className="text-sm font-medium text-slate-400" >
           {title}
         </p>
 

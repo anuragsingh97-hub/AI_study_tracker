@@ -17,9 +17,9 @@ export default function GoalProgress({ goals, loading = false }) {
   const remaining = primaryGoal ? Math.max(0, 100 - primaryGoal) : 0;
 
   return (
-    <div className="bg-slate-900 rounded-3xl border border-slate-800 p-6 shadow-lg" style={{ margin: "2px" }}>
-      <div className="flex items-center gap-3 mb-8" style={{ padding: "5px" }}>
-        <div className="p-10 h-12 w-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+    <div className="bg-slate-900 rounded-3xl border border-slate-800 p-2 shadow-lg">
+      <div className="flex items-center gap-3 mb-8" >
+        <div className="p-2 h-12 w-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
           <FaBullseye className="text-blue-400 text-xl" />
         </div>
 
@@ -47,15 +47,15 @@ export default function GoalProgress({ goals, loading = false }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mt-8">
-        <div className="bg-slate-800 rounded-2xl p-4 text-center">
+      <div className="grid grid-cols-2 gap-4 mt-2">
+        <div className="bg-slate-800 rounded-2xl p-2 text-center">
           <p className="text-slate-400 text-sm">Remaining</p>
           <h3 className="text-white text-lg font-semibold">
             {primaryGoal ? `${remaining} of ${100}%` : "—"}
           </h3>
         </div>
 
-        <div className="bg-slate-800 rounded-2xl p-4 text-center">
+        <div className="bg-slate-800 rounded-2xl p-2 text-center">
           <p className="text-slate-400 text-sm">Completed</p>
           <h3 className="text-blue-400 text-lg font-semibold">
             {primaryGoal ? `${primaryGoal}%` : "—"}

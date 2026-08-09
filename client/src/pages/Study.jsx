@@ -11,11 +11,13 @@ import StudyStats from "../components/study/StudyStats";
 import StudyNotes from "../components/study/StudyNotes";
 import StudyQuote from "../components/study/StudyQuote";
 import StudySummaryModal from "../components/study/StudySummaryModal";
+import QuizGenerating from "../components/study/QuizGenerating";
 import useFaceDetection from "../hooks/useFaceDetection";
 import useFaceLandmarker from "../hooks/useFaceLandmarker";
 import useYOLODetection from "../hooks/useYOLODetection";
 import useVoiceDetection from "../hooks/useVoiceDetection";
 import { createStudy, updateStudy } from "../api/studyApi";
+import { calculateFocusScore } from "../utils/scoreCalculator";
 
 export default function StudyPage() {
   const navigate = useNavigate();
@@ -76,16 +78,31 @@ export default function StudyPage() {
   // Focus Score
   // -------------------------------
   const [studyTime, setStudyTime] = useState(0);
+  const sessionMetricsRef = useRef({
+    focusedTime: 0,
+    phoneTime: 0,
+    talkingTime: 0,
+    awayTime: 0,
+    multiplePersonTime: 0,
+  });
 
   useEffect(() => {
     if (sessionStatus !== "running") return;
 
     const timer = setInterval(() => {
       setStudyTime((prev) => prev + 1);
+      const metrics = sessionMetricsRef.current;
+      if (phoneDetected) metrics.phoneTime += 1;
+      if (voiceDetected) metrics.talkingTime += 1;
+      if (lookingAway) metrics.awayTime += 1;
+      if (multipleFaces) metrics.multiplePersonTime += 1;
+      if (faceVisible && !phoneDetected && !voiceDetected && !lookingAway && !multipleFaces) {
+        metrics.focusedTime += 1;
+      }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [sessionStatus]);
+  }, [sessionStatus, faceVisible, lookingAway, multipleFaces, phoneDetected, voiceDetected]);
 
   const focusScore = useMemo(() => {
     // Focus cannot be verified while the camera cannot see the user.
@@ -139,6 +156,13 @@ export default function StudyPage() {
       });
       setSessionId(response.data.study._id);
       setStudyTime(0);
+      sessionMetricsRef.current = {
+        focusedTime: 0,
+        phoneTime: 0,
+        talkingTime: 0,
+        awayTime: 0,
+        multiplePersonTime: 0,
+      };
       setPauseCount(0);
       setPauseDuration(0);
       setSessionStatus("running");
@@ -180,22 +204,31 @@ export default function StudyPage() {
   }, [pauseCount, pauseDuration, sessionId, sessionStatus]);
 
   const finishStudy = useCallback(async () => {
-    if (["idle", "finished"].includes(sessionStatus) || !sessionId) return;
+    if (["idle", "finished", "generating"].includes(sessionStatus) || !sessionId) return;
 
     const finalPauseDuration = pauseStartedAt.current
       ? pauseDuration + Math.floor((Date.now() - pauseStartedAt.current) / 1000)
       : pauseDuration;
 
+    // Change state before awaiting the API request so the timer and every
+    // detection hook stop immediately while quiz generation runs.
+    setSessionStatus("generating");
     setSaving(true);
     setSessionError("");
     try {
+      const metrics = sessionMetricsRef.current;
+      const finalFocusScore = calculateFocusScore({
+        totalTime: studyTime,
+        focusedTime: metrics.focusedTime,
+      });
       await updateStudy(sessionId, {
         status: "completed",
         actualDuration: studyTime,
         pauseDuration: finalPauseDuration,
         pauseCount,
         completed: true,
-        focusScore,
+        focusScore: finalFocusScore,
+        ...metrics,
         distractionCount: 0,
         endTime: new Date().toISOString(),
         notes,
@@ -208,6 +241,7 @@ export default function StudyPage() {
       // The quiz screen fetches it by this stable study id, so refresh is safe.
       navigate(`/quiz/${sessionId}`);
     } catch (error) {
+      setSessionStatus("generation_error");
       setSessionError(
         error.response?.data?.message || "Unable to finish the study session.",
       );
@@ -215,7 +249,6 @@ export default function StudyPage() {
       setSaving(false);
     }
   }, [
-    focusScore,
     notes,
     pauseCount,
     pauseDuration,
@@ -225,6 +258,9 @@ export default function StudyPage() {
   ]);
 
   const tittle = "AI Study Session";
+  if (sessionStatus === "generating") {
+    return <DashboardLayout tittle={tittle}><QuizGenerating /></DashboardLayout>;
+  }
   return (
     <DashboardLayout tittle={tittle}>
       <div className="min-h-screen bg-slate-950 p-2 sm:p-2 lg:p-1">

@@ -8,6 +8,10 @@ import GoalProgress from "../components/dashboard/GoalProgress";
 import RecentSessions from "../components/dashboard/RecentSessions";
 import { getStudies } from "../api/studyApi";
 import { getGoals } from "../api/goalApi";
+import { getCompletedQuizzes } from "../services/quizService";
+import SubjectPerformance from "../components/subject/SubjectPerformance";
+import WeakSubjects from "../components/subject/WeakSubjects";
+import { calculateSubjectPerformance, calculateTopicPerformance, generateStudyRecommendation, getWeakSubjects, getWeakTopics } from "../utils/scoreCalculator";
 // console.log("goalsResponse",getGoals)
 const startOfDay = (date) => {
   const result = new Date(date);
@@ -61,6 +65,7 @@ const tittle = "Dashboard";
 const Dashboard = () => {
   const [studies, setStudies] = useState([]);
   const [goals, setGoals] = useState([]);
+  const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -69,15 +74,32 @@ const Dashboard = () => {
 
     const loadDashboard = async () => {
       try {
-        const [studiesResponse, goalsResponse] = await Promise.all([
+        const [studiesResult, goalsResult, quizzesResult] = await Promise.allSettled([
           getStudies(),
           getGoals(),
+          getCompletedQuizzes(),
         ]);
         if (!mounted) return;
 
-        setStudies(studiesResponse.data.studies || []);
-        setGoals(goalsResponse.data.goals || []);
-        // console.log("goalsResponse",goalsResponse.data.goals)
+        if (studiesResult.status === "fulfilled") {
+          setStudies(studiesResult.value.data.studies || []);
+        }
+        if (goalsResult.status === "fulfilled") {
+          setGoals(goalsResult.value.data.goals || []);
+        }
+        if (quizzesResult.status === "fulfilled") {
+          setQuizzes(quizzesResult.value);
+        }
+
+        const requiredFailure = [studiesResult, goalsResult].find(
+          (result) => result.status === "rejected",
+        );
+        if (requiredFailure) {
+          setError(
+            requiredFailure.reason?.response?.data?.message ||
+              "Unable to load dashboard data.",
+          );
+        }
       } catch (requestError) {
         if (mounted) {
           setError(
@@ -140,6 +162,20 @@ const Dashboard = () => {
     };
   }, [goals, studies]);
 
+  const subjectData = useMemo(() => {
+    const subjects = [...new Set([...studies, ...quizzes].map((item) => item.subject?.trim()).filter(Boolean))];
+    const performances = subjects.map((subject) => calculateSubjectPerformance(subject, studies, quizzes));
+    const weakTopicsBySubject = Object.fromEntries(subjects.map((subject) => {
+      const questions = quizzes.filter((quiz) => quiz.subject?.trim().toLowerCase() === subject.toLowerCase()).flatMap((quiz) => quiz.review ?? quiz.questions ?? []);
+      return [subject, getWeakTopics(calculateTopicPerformance(questions))];
+    }));
+    const weakSubjects = getWeakSubjects(performances).map((performance) => ({
+      ...performance,
+      recommendation: generateStudyRecommendation(performance, weakTopicsBySubject[performance.subject]),
+    }));
+    return { performances, weakSubjects, weakTopicsBySubject };
+  }, [studies, quizzes]);
+
   return (
     <DashboardLayout tittle={tittle}>
       <WelcomeCard />
@@ -200,6 +236,8 @@ const Dashboard = () => {
         <GoalProgress goals={dashboard.weeklyProgress} loading={loading} />
         <RecentSessions sessions={studies} loading={loading} error={error} />
       </div>
+      <SubjectPerformance performances={subjectData.performances} loading={loading} />
+      <WeakSubjects subjects={subjectData.weakSubjects} weakTopicsBySubject={subjectData.weakTopicsBySubject} />
     </DashboardLayout>
   );
 };

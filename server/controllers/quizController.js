@@ -1,5 +1,6 @@
 import Quiz from "../models/Quiz.js";
 import Study from "../models/Study.js";
+import mongoose from "mongoose";
 import { generateQuizFromTopic } from "../services/quizService.js";
 
 const publicQuiz = (quiz) => {
@@ -13,7 +14,7 @@ const publicQuiz = (quiz) => {
   // Never expose correct answers or explanations before server-side evaluation.
   return {
     ...meta,
-    questions: questions.map(({ question, options, _id }) => ({ _id, question, options })),
+    questions: questions.map(({ question, options, topic, _id }) => ({ _id, question, options, topic })),
   };
 };
 
@@ -60,10 +61,22 @@ export const generateQuiz = async (req, res) => {
 };
 
 export const getQuizByStudyId = async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.studyId)) {
+    return res.status(400).json({ success: false, message: "Invalid study session id" });
+  }
   try {
     const quiz = await Quiz.findOne({ study: req.params.studyId, user: req.user.id });
     if (!quiz) return res.status(404).json({ success: false, message: "Quiz is not ready yet" });
     return res.json({ success: true, quiz: publicQuiz(quiz) });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getCompletedQuizzes = async (req, res) => {
+  try {
+    const quizzes = await Quiz.find({ user: req.user.id, completed: true }).sort({ completedAt: -1 });
+    return res.json({ success: true, quizzes: quizzes.map(publicQuiz) });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
@@ -85,7 +98,7 @@ export const submitQuiz = async (req, res) => {
       if (!userAnswer) skipped += 1;
       else if (isCorrect) correct += 1;
       else wrong += 1;
-      return { questionId: String(question._id ?? index), question: question.question, userAnswer, correctAnswer: question.correctAnswer, explanation: question.explanation, isCorrect };
+      return { questionId: String(question._id ?? index), question: question.question, userAnswer, correctAnswer: question.correctAnswer, explanation: question.explanation, topic: question.topic || quiz.topic, isCorrect };
     });
 
     const totalQuestions = quiz.questions.length;

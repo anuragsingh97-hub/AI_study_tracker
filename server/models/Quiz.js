@@ -22,6 +22,7 @@ const questionSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    topic: { type: String, default: "" },
   },
   { _id: false }
 );
@@ -88,6 +89,7 @@ const quizSchema = new mongoose.Schema(
           userAnswer: String,
           correctAnswer: String,
           explanation: String,
+          topic: String,
           isCorrect: Boolean,
         },
       ],

@@ -11,3 +11,8 @@ export const submitQuiz = async (studyId, payload) => {
   const { data } = await api.post(`/quiz/${studyId}/submit`, payload);
   return data;
 };
+
+export const getCompletedQuizzes = async () => {
+  const { data } = await api.get("/quiz/completed");
+  return data.quizzes ?? [];
+};

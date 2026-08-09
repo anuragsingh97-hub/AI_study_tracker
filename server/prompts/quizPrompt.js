@@ -33,9 +33,10 @@ Rules:
 3. Each question must have exactly 4 options.
 4. Only ONE option is correct.
 5. Add a short explanation.
-6. Return ONLY valid JSON.
-7. Do NOT wrap the JSON in markdown.
-8. Do NOT write any extra text.
+6. Add a concise topic label for every question (for example, "TCP/IP").
+7. Return ONLY valid JSON.
+8. Do NOT wrap the JSON in markdown.
+9. Do NOT write any extra text.
 
 Return JSON in this format:
 
@@ -53,7 +54,8 @@ Return JSON in this format:
         ""
       ],
       "correctAnswer": "",
-      "explanation": ""
+      "explanation": "",
+      "topic": ""
     }
   ]
 }

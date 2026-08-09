@@ -60,7 +60,7 @@ export default function CameraPreview({
               height: 720,
               facingMode: "user",
             }}
-            className="w-full h-[350px] object-cover"
+            className="w-full h-[466px] object-cover"
           />
         ) : (
           <div className="flex h-[466px] items-center justify-center bg-slate-950 px-6 text-center">

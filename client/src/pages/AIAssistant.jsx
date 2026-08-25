@@ -16,6 +16,7 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import useAuth from "../hooks/useAuth";
 import AISummary from "../components/ai/AISummary";
 import TypingIndicator from "../components/ai/TypingIndicator";
+import API from "../api/axios";
 
 const suggestions = [
   "Create today's timetable",
@@ -112,6 +113,7 @@ export default function AIAssistant() {
   const { user } = useAuth();
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [messages, setMessages] = useState([
     {
       role: "assistant",
@@ -119,13 +121,15 @@ export default function AIAssistant() {
       text: `Hello ${user?.name || "there"} 👋\n\nI'm your AI Study Assistant. I can help with DSA, study plans, goal tracking, productivity, and career guidance. What would you like to work on?`,
     },
   ]);
-  const endRef = useRef(null);
+  const messageListRef = useRef(null);
+  const fileInputRef = useRef(null);
   useEffect(() => {
-    // scrollIntoView may return a Promise in modern browsers; effects may only
-    // return a cleanup function, so deliberately do not return that result.
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    const messageList = messageListRef.current;
+    if (messageList) {
+      messageList.scrollTo({ top: messageList.scrollHeight, behavior: "smooth" });
+    }
   }, [messages, typing]);
-  const send = (prompt = input) => {
+  const send = async (prompt = input) => {
     const text = prompt.trim();
     if (!text || typing) return;
     setMessages((current) => [
@@ -134,26 +138,56 @@ export default function AIAssistant() {
     ]);
     setInput("");
     setTyping(true);
-    window.setTimeout(() => {
+    try {
+      const { data } = await API.post("/ai/chat", { message: text });
       setMessages((current) => [
         ...current,
-        { role: "assistant", text: assistantReply(text), time: time() },
+        { role: "assistant", text: data.message, time: time() },
       ]);
+    } catch (error) {
+      setMessages((current) => [
+        ...current,
+        { role: "assistant", text: error.response?.data?.message || "I couldn't reach the AI assistant. Please try again.", time: time() },
+      ]);
+    } finally {
       setTyping(false);
-    }, 700);
+    }
+  };
+  const uploadDocument = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setUploading(true);
+    try {
+      const body = new FormData();
+      body.append("document", file);
+      const { data } = await API.post("/ai/documents", body, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setMessages((current) => [...current, {
+        role: "assistant",
+        text: `${data.document.name} is ready. Ask me anything about this ${data.document.type === "pdf" ? "PDF" : "note"}.`,
+        time: time(),
+      }]);
+    } catch (error) {
+      setMessages((current) => [...current, {
+        role: "assistant",
+        text: error.response?.data?.message || "I couldn't process that document.",
+        time: time(),
+      }]);
+    } finally {
+      setUploading(false);
+    }
   };
   return (
     <DashboardLayout tittle="AI Assistant">
-      <div className="space-y-6 pb-8">
-        <header className="flex flex-col gap-4 rounded-3xl border border-blue-500/20 bg-gradient-to-r from-blue-600/15 via-slate-900 to-violet-600/15 p-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4">
-            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-blue-500 to-violet-600 shadow-lg shadow-blue-500/30">
+      <div className="h-full overflow-hidden space-y-2">
+        <header className="flex flex-col gap-4 rounded-3xl border border-blue-500/20  p-1 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <div className="grid h-8 w-10 place-items-center rounded-2xl ">
               <Sparkles />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">
-                AI Study Assistant
-              </h1>
               <p className="mt-1 text-sm text-slate-400">
                 Your personal AI mentor for smarter learning.
               </p>
@@ -170,7 +204,7 @@ export default function AIAssistant() {
         </header>
         {/* <AISummary /> */}
         <div className="grid gap-6 xl:grid-cols-3">
-          <section className="flex min-h-[620px] flex-col overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 xl:col-span-2">
+          <section className="flex h-[min(82vh,720px)] min-h-[540px] flex-col overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 xl:col-span-2">
             <div className="flex items-center gap-3 border-b border-slate-800 px-5 py-4">
               <div className="rounded-xl bg-blue-500/15 p-2 text-blue-300">
                 <Bot size={20} />
@@ -182,12 +216,11 @@ export default function AIAssistant() {
                 </p>
               </div>
             </div>
-            <div className="flex-1 space-y-5 overflow-y-auto p-5">
+            <div ref={messageListRef} className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain p-5">
               {messages.map((message, i) => (
                 <ChatMessage key={`${message.time}-${i}`} message={message} />
               ))}
               {typing && <TypingIndicator />}
-              <div ref={endRef} />
             </div>
             <form
               onSubmit={(event) => {
@@ -200,10 +233,14 @@ export default function AIAssistant() {
                 <button
                   type="button"
                   aria-label="Attach file"
-                  className="rounded-xl p-2 text-slate-400 hover:bg-slate-700 hover:text-white"
+                  disabled={uploading}
+                  onClick={() => fileInputRef.current?.click()}
+                  title="Upload a PDF or text note for the assistant to reference."
+                  className="rounded-xl p-2 text-slate-400 hover:bg-slate-700 hover:text-white disabled:opacity-50"
                 >
                   <Paperclip size={18} />
                 </button>
+                <input ref={fileInputRef} type="file" accept="application/pdf,text/plain,.pdf,.txt,.md" onChange={uploadDocument} className="hidden" />
                 <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -237,20 +274,20 @@ export default function AIAssistant() {
               </p>
             </form>
           </section>
-          <aside className="space-y-5">
-            <section className="rounded-3xl border border-blue-500/30 bg-gradient-to-br from-blue-500/15 to-violet-600/10 p-5">
+          <aside className="space-y-3">
+            <section className="rounded-3xl border border-blue-500/30 bg-gradient-to-br from-blue-500/15 to-violet-600/10 p-4">
               <div className="flex items-center gap-2 text-blue-200">
                 <Target size={18} />
                 <h2 className="font-semibold">Today&apos;s recommendation</h2>
               </div>
-              <p className="mt-4 text-sm leading-6 text-slate-300">
+              <p className="mt-2 text-sm leading-6 text-slate-300">
                 You study best between{" "}
                 <b className="text-white">8 PM and 10 PM</b>. Solve 3 Medium
                 LeetCode problems, then revise Graph Algorithms before sleeping.
               </p>
             </section>
             
-            <section className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
+            <section className="rounded-3xl border border-slate-800 bg-slate-900 p-3">
               <h2 className="font-semibold text-white">Suggested questions</h2>
               <div className="mt-3 flex flex-wrap gap-2">
                 {suggestions.map((suggestion) => (
@@ -260,6 +297,17 @@ export default function AIAssistant() {
                     className="rounded-lg border border-slate-700 px-2.5 py-1.5 text-left text-xs text-slate-400 transition hover:border-blue-500 hover:text-blue-200"
                   >
                     {suggestion}
+                  </button>
+                ))}
+              </div>
+            </section>
+            <section className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
+              <h2 className="font-semibold text-white">Quick actions</h2>
+              <div className="mt-3 grid gap-2">
+                {actions.map(([label, prompt, Icon]) => (
+                  <button type="button" key={label} onClick={() => send(prompt)} disabled={typing} className="flex items-center gap-3 rounded-xl bg-slate-800 px-3 py-3 text-left text-sm text-slate-300 transition hover:bg-slate-700 disabled:opacity-50">
+                    <Icon size={17} className="text-blue-300" />
+                    {label}
                   </button>
                 ))}
               </div>

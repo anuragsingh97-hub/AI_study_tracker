@@ -9,6 +9,7 @@ import studyRoutes from "./routes/studyRoutes.js";
 import goalRoutes from "./routes/goalRoutes.js";
 import testRoutes from "./routes/testRoutes.js";
 import quizRoutes from "./routes/quizRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.use("/api/study", studyRoutes);
 app.use("/api/goals", goalRoutes);
 app.use("/api/test", testRoutes);
 app.use("/api/quiz", quizRoutes);
+app.use("/api/ai", aiRoutes);
 // console.log("Gemini Key:", process.env.GEMINI_API_KEY);
 
 const PORT = process.env.PORT || 5000;

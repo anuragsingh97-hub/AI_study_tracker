@@ -155,3 +155,38 @@ export const getCurrentUser = async (req, res) => {
   });
 
 };
+
+// PUT /api/auth/profile
+export const updateProfile = async (req, res) => {
+  try {
+    const allowedFields = [
+      "name", "bio", "college", "branch", "semester", "profileImage",
+      "socialLinks", "preferences",
+    ];
+    const updates = Object.fromEntries(
+      allowedFields
+        .filter((field) => req.body[field] !== undefined)
+        .map((field) => [field, req.body[field]]),
+    );
+
+    if (updates.name !== undefined && !String(updates.name).trim()) {
+      return res.status(400).json({ success: false, message: "Name is required" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: updates },
+      { new: true, runValidators: true },
+    ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    return res.status(200).json({ success: true, message: "Profile updated", user });
+  } catch (error) {
+    return res.status(error.name === "ValidationError" ? 400 : 500).json({
+      success: false,
+      message: error.message || "Unable to update profile",
+    });
+  }
+};

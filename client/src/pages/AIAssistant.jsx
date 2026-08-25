@@ -249,22 +249,7 @@ export default function AIAssistant() {
                 LeetCode problems, then revise Graph Algorithms before sleeping.
               </p>
             </section>
-            <section className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
-              <h2 className="font-semibold text-white">Quick actions</h2>
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                {actions.map(([name, prompt, Icon]) => (
-                  <motion.button
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => send(prompt)}
-                    key={name}
-                    className="rounded-xl border border-slate-800 bg-slate-800/60 p-3 text-left text-xs text-slate-300 transition hover:border-blue-500/50 hover:bg-blue-500/10"
-                  >
-                    <Icon size={17} className="mb-2 text-blue-300" />
-                    {name}
-                  </motion.button>
-                ))}
-              </div>
-            </section>
+            
             <section className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
               <h2 className="font-semibold text-white">Suggested questions</h2>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -279,31 +264,7 @@ export default function AIAssistant() {
                 ))}
               </div>
             </section>
-            <section className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
-              <h2 className="font-semibold text-white">Session insights</h2>
-              <div className="mt-4 space-y-3">
-                <Insight
-                  label="Focus score"
-                  value={89}
-                  color="bg-emerald-500"
-                />
-                <Insight
-                  label="Face visibility"
-                  value={96}
-                  color="bg-blue-500"
-                />
-                <Insight
-                  label="Low distractions"
-                  value={91}
-                  color="bg-violet-500"
-                />
-                <Insight
-                  label="Phone-free time"
-                  value={96}
-                  color="bg-cyan-500"
-                />
-              </div>
-            </section>
+            
           </aside>
         </div>
       </div>

@@ -73,6 +73,18 @@ const userSchema = new mongoose.Schema(
       leetcode: { type: String, default: "" },
       codeforces: { type: String, default: "" },
     },
+
+    preferences: {
+      dailyReminder: { type: Boolean, default: true },
+      goalReminder: { type: Boolean, default: true },
+      emailNotification: { type: Boolean, default: false },
+      aiSuggestions: { type: Boolean, default: true },
+      weeklyReport: { type: Boolean, default: true },
+      faceDetection: { type: Boolean, default: true },
+      phoneDetection: { type: Boolean, default: true },
+      talkingDetection: { type: Boolean, default: false },
+      productivityAnalysis: { type: Boolean, default: true },
+    },
   },
   { timestamps: true },
 );

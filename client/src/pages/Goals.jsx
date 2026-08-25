@@ -206,7 +206,6 @@ export default function Goals() {
   };
   // console.log("goal::",goals);
   const persistGoal = async (nextGoal) => {
-    
     try {
       const { data } = await updateGoal(nextGoal._id, nextGoal);
       setGoals((items) =>
@@ -238,7 +237,7 @@ export default function Goals() {
   };
   const addMilestone = (goalId, title) => {
     const goal = goals.find((item) => item._id === goalId);
-    console.log("mil goal----",goal);
+    console.log("mil goal----", goal);
     if (goal)
       persistGoal({
         ...goal,
@@ -256,6 +255,7 @@ export default function Goals() {
       console.error("Could not delete goal", error);
     }
   };
+  
   return (
     <DashboardLayout tittle="My Goals">
       <main className="min-h-screen bg-slate-950 p-4 sm:p-6 lg:p-8">
@@ -303,7 +303,7 @@ export default function Goals() {
               </div>
             )}
           </section>
-          <GoalInsights />
+          <GoalInsights goals={goals} />
         </div>
       </main>
       {modalOpen && (

@@ -27,6 +27,12 @@ const formatDate = (date) => {
 };
 
 export default function RecentSessions({ sessions = [], loading = false, error = "" }) {
+  const recentSessions = [...sessions].sort((first, second) => {
+    const firstTime = new Date(first.startTime || first.createdAt || 0).getTime();
+    const secondTime = new Date(second.startTime || second.createdAt || 0).getTime();
+    return secondTime - firstTime;
+  });
+
   return (
     <div className="bg-slate-900 rounded-3xl p-2 border border-slate-800" >
       <div className="flex items-center justify-between mb-6">
@@ -42,7 +48,7 @@ export default function RecentSessions({ sessions = [], loading = false, error =
         {!loading && error && <p className="px-5 py-4 text-sm text-red-300">{error}</p>}
         {!loading && !error && sessions.length === 0 && <p className="px-5 py-4 text-sm text-slate-400">No study sessions yet.</p>}
 
-        {sessions.map((session) => (
+        {recentSessions.map((session) => (
           <div key={session._id} className="flex items-center justify-between bg-slate-800/70 border border-slate-700 rounded-2xl px-2 py-2 hover:bg-slate-800 transition mt-1" >
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-xl bg-blue-600/20 flex items-center justify-center text-blue-400 font-bold text-lg">

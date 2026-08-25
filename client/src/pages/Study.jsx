@@ -78,6 +78,11 @@ export default function StudyPage() {
   // Focus Score
   // -------------------------------
   const [studyTime, setStudyTime] = useState(0);
+  // Keep the clock based on real timestamps. setInterval is only used to
+  // refresh the UI, because browsers can delay interval callbacks while the
+  // page is busy (for example, while camera detection is running).
+  const accumulatedStudyTime = useRef(0);
+  const runningStartedAt = useRef(null);
   const sessionMetricsRef = useRef({
     focusedTime: 0,
     phoneTime: 0,
@@ -86,11 +91,30 @@ export default function StudyPage() {
     multiplePersonTime: 0,
   });
 
+  const currentStudyTime = useCallback(() => {
+    if (!runningStartedAt.current) return accumulatedStudyTime.current;
+
+    return Math.max(
+      0,
+      accumulatedStudyTime.current +
+        Math.floor((Date.now() - runningStartedAt.current) / 1000),
+    );
+  }, []);
+
+  useEffect(() => {
+    if (sessionStatus !== "running") return;
+
+    const refreshClock = () => setStudyTime(currentStudyTime());
+    refreshClock();
+    const timer = window.setInterval(refreshClock, 250);
+
+    return () => window.clearInterval(timer);
+  }, [currentStudyTime, sessionStatus]);
+
   useEffect(() => {
     if (sessionStatus !== "running") return;
 
     const timer = setInterval(() => {
-      setStudyTime((prev) => prev + 1);
       const metrics = sessionMetricsRef.current;
       if (phoneDetected) metrics.phoneTime += 1;
       if (voiceDetected) metrics.talkingTime += 1;
@@ -132,6 +156,7 @@ export default function StudyPage() {
         });
         setPauseDuration(resumedPauseDuration);
         pauseStartedAt.current = null;
+        runningStartedAt.current = Date.now();
         setSessionStatus("running");
       } catch (error) {
         setSessionError(
@@ -156,6 +181,8 @@ export default function StudyPage() {
       });
       setSessionId(response.data.study._id);
       setStudyTime(0);
+      accumulatedStudyTime.current = 0;
+      runningStartedAt.current = Date.now();
       sessionMetricsRef.current = {
         focusedTime: 0,
         phoneTime: 0,
@@ -178,6 +205,10 @@ export default function StudyPage() {
   const pauseStudy = useCallback(async () => {
     if (sessionStatus !== "running" || !sessionId) return;
 
+    const elapsedStudyTime = currentStudyTime();
+    accumulatedStudyTime.current = elapsedStudyTime;
+    runningStartedAt.current = null;
+    setStudyTime(elapsedStudyTime);
     const nextPauseCount = pauseCount + 1;
     setSessionStatus("paused");
     pauseStartedAt.current = Date.now();
@@ -194,6 +225,7 @@ export default function StudyPage() {
     } catch (error) {
       pauseStartedAt.current = null;
       setPauseCount(pauseCount);
+      runningStartedAt.current = Date.now();
       setSessionStatus("running");
       setSessionError(
         error.response?.data?.message || "Unable to pause the study session.",
@@ -201,7 +233,7 @@ export default function StudyPage() {
     } finally {
       setSaving(false);
     }
-  }, [pauseCount, pauseDuration, sessionId, sessionStatus]);
+  }, [currentStudyTime, pauseCount, pauseDuration, sessionId, sessionStatus]);
 
   const finishStudy = useCallback(async () => {
     if (["idle", "finished", "generating"].includes(sessionStatus) || !sessionId) return;
@@ -209,6 +241,10 @@ export default function StudyPage() {
     const finalPauseDuration = pauseStartedAt.current
       ? pauseDuration + Math.floor((Date.now() - pauseStartedAt.current) / 1000)
       : pauseDuration;
+    const finalStudyTime = currentStudyTime();
+    accumulatedStudyTime.current = finalStudyTime;
+    runningStartedAt.current = null;
+    setStudyTime(finalStudyTime);
 
     // Change state before awaiting the API request so the timer and every
     // detection hook stop immediately while quiz generation runs.
@@ -218,12 +254,12 @@ export default function StudyPage() {
     try {
       const metrics = sessionMetricsRef.current;
       const finalFocusScore = calculateFocusScore({
-        totalTime: studyTime,
+        totalTime: finalStudyTime,
         focusedTime: metrics.focusedTime,
       });
       await updateStudy(sessionId, {
         status: "completed",
-        actualDuration: studyTime,
+        actualDuration: finalStudyTime,
         pauseDuration: finalPauseDuration,
         pauseCount,
         completed: true,
@@ -254,7 +290,7 @@ export default function StudyPage() {
     pauseDuration,
     sessionId,
     sessionStatus,
-    studyTime,
+    currentStudyTime,
   ]);
 
   const tittle = "AI Study Session";

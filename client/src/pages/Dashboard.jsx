@@ -232,8 +232,9 @@ const Dashboard = () => {
         <PomodoroCard />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-2 mt-2">
-        <GoalProgress goals={dashboard.weeklyProgress} loading={loading} />
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-2 mt-2">
+        <GoalProgress goals={dashboard.dailyGoals} title="Daily Goal" emptyMessage="No goals due today" loading={loading} />
+        <GoalProgress goals={dashboard.weeklyGoals} title="Weekly Goal" emptyMessage="No goals due this week" loading={loading} />
         <RecentSessions sessions={studies} loading={loading} error={error} />
       </div>
       <SubjectPerformance performances={subjectData.performances} loading={loading} />

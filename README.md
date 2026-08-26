@@ -48,7 +48,16 @@ ai-study-tracker/
 │   └── utils/                    # Token and parsing helpers
 └── README.md
 ```
+## 📸 Screenshots
 
+### Application Results
+
+![Application System Output](screenshort_of_project/creatAccount.png)
+![Application System Output](screenshort_of_project/dashboard.png)
+![Application System Output](screenshort_of_project/study.png)
+![Application System Output](screenshort_of_project/goal.png)
+![Application System Output](screenshort_of_project/AiAssistant.png)
+![Application System Output](screenshort_of_project/profile.png)
 ## Prerequisites
 
 - Node.js 18 or newer

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Quote } from "lucide-react";
 
 const quotes = [
   "Success is the sum of small efforts repeated every day.",
@@ -20,18 +20,18 @@ export default function StudyQuote() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-6 shadow-xl"
-      style={{ padding: "10px", margin: "3px" }}
+      className="relative h-full overflow-hidden rounded-3xl border border-violet-400/20 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 p-6 shadow-xl shadow-blue-950/30"
     >
+      <div className="absolute -right-7 -top-7 h-28 w-28 rounded-full bg-white/10" />
       <div className="flex items-center gap-3">
-        <Sparkles />
+        <div className="rounded-xl bg-white/15 p-2"><Sparkles size={20} /></div>
 
-        <h2 className="text-xl font-bold text-white">Daily Motivation</h2>
+        <div><p className="text-xs font-bold tracking-[0.16em] text-blue-100">DAILY REMINDER</p><h2 className="font-bold text-white">Keep your momentum</h2></div>
       </div>
 
-      <p className="text-white mt-6 text-lg italic">
-        Consistency creates excellence.
-      </p>
+      <Quote className="mt-8 text-white/40" size={28} />
+      <p className="mt-2 max-w-sm text-lg font-medium leading-7 text-white">Consistency creates excellence.</p>
+      <p className="mt-4 text-sm text-blue-100">One focused block at a time.</p>
     </motion.div>
   );
 }

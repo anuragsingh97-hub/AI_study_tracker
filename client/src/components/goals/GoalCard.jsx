@@ -1,5 +1,4 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect,useRef } from "react";
 import{
   CalendarDays,
   Check,
@@ -48,15 +47,6 @@ export default function GoalCard({
     }
     console.log("mil:", onAddMilestone);
   };
-
-const bottomRef = useRef(null);
-
-useEffect(() => {
-  bottomRef.current?.scrollIntoView({
-    behavior: "smooth",
-    block: "end",
-  });
-}, [goal.milestones]);
 
   // console.log("mil:",milestoneTitle);
   return (
@@ -162,7 +152,6 @@ useEffect(() => {
               </span>
             </label>
           ))}
-          <div ref={bottomRef}></div>
         </div>
         <form onSubmit={addMilestone} className="mt-3 flex gap-2">
           <input

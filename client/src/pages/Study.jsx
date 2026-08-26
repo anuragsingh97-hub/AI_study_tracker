@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Sparkles, ShieldCheck } from "lucide-react";
 
 import DashboardLayout from "../layouts/DashboardLayout";
 
@@ -120,13 +121,26 @@ export default function StudyPage() {
       if (voiceDetected) metrics.talkingTime += 1;
       if (lookingAway) metrics.awayTime += 1;
       if (multipleFaces) metrics.multiplePersonTime += 1;
-      if (faceVisible && !phoneDetected && !voiceDetected && !lookingAway && !multipleFaces) {
+      if (
+        faceVisible &&
+        !phoneDetected &&
+        !voiceDetected &&
+        !lookingAway &&
+        !multipleFaces
+      ) {
         metrics.focusedTime += 1;
       }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [sessionStatus, faceVisible, lookingAway, multipleFaces, phoneDetected, voiceDetected]);
+  }, [
+    sessionStatus,
+    faceVisible,
+    lookingAway,
+    multipleFaces,
+    phoneDetected,
+    voiceDetected,
+  ]);
 
   const focusScore = useMemo(() => {
     // Focus cannot be verified while the camera cannot see the user.
@@ -236,7 +250,11 @@ export default function StudyPage() {
   }, [currentStudyTime, pauseCount, pauseDuration, sessionId, sessionStatus]);
 
   const finishStudy = useCallback(async () => {
-    if (["idle", "finished", "generating"].includes(sessionStatus) || !sessionId) return;
+    if (
+      ["idle", "finished", "generating"].includes(sessionStatus) ||
+      !sessionId
+    )
+      return;
 
     const finalPauseDuration = pauseStartedAt.current
       ? pauseDuration + Math.floor((Date.now() - pauseStartedAt.current) / 1000)
@@ -295,17 +313,44 @@ export default function StudyPage() {
 
   const tittle = "AI Study Session";
   if (sessionStatus === "generating") {
-    return <DashboardLayout tittle={tittle}><QuizGenerating /></DashboardLayout>;
+    return (
+      <DashboardLayout tittle={tittle}>
+        <QuizGenerating />
+      </DashboardLayout>
+    );
   }
   return (
     <DashboardLayout tittle={tittle}>
-      <div className="min-h-screen bg-slate-950 p-2 sm:p-2 lg:p-1">
-        {/* =======================================
-                First Row
-           ======================================= */}
+      <div className="min-h-full space-y-4 bg-slate-950 p-3 sm:p-5 lg:p-2">
+        <section className="relative overflow-hidden rounded-3xl border border-blue-400/15 bg-gradient-to-br from-blue-600/20 via-slate-900 to-slate-900 px-5 py-6 sm:px-8">
+          <div className="absolute -right-12 -top-16 h-48 w-48 rounded-full bg-blue-500/20 blur-3xl" />
+          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="mb-3 flex w-fit items-center gap-2 rounded-full border border-blue-300/20 bg-blue-400/10 px-3 py-1 text-xs font-semibold text-blue-200">
+                <Sparkles size={14} />
+                SMART STUDY WORKSPACE
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                Make this session count.
+              </h1>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">
+                Set a clear intention, stay in flow, and let your AI focus
+                companion keep you accountable.
+              </p>
+            </div>
+            <div
+              className={`flex items-center gap-2 rounded-2xl border px-4 py-3 text-sm font-medium ${monitoringActive ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300" : "border-slate-700 bg-slate-950/50 text-slate-400"}`}
+            >
+              <ShieldCheck size={18} />
+              {monitoringActive
+                ? "Focus monitoring active"
+                : "Ready when you are"}
+            </div>
+          </div>
+        </section>
 
-        <div className="grid lg:grid-cols-3 gap-2 lg:gap-2">
-          <div className="lg:col-span-2">
+        <div className="grid gap-3 xl:grid-cols-4">
+          <div className="xl:col-span-3">
             <StudyForm
               subject={subject}
               topic={topic}
@@ -336,12 +381,8 @@ export default function StudyPage() {
           </p>
         )}
 
-        {/* =======================================
-                Second Row
-           ======================================= */}
-
-        <div className="grid lg:grid-cols-3 gap-5 lg:gap-2 mt-2 lg:mt-2">
-          <div className="lg:col-span-2">
+        <div className="grid gap-4 xl:grid-cols-4">
+          <div className="xl:col-span-3">
             <CameraPreview
               webcamRef={videoRef}
               faceDetected={faceDetected}
@@ -364,26 +405,20 @@ export default function StudyPage() {
           />
         </div>
 
-        {/* =======================================
-                Third Row
-           ======================================= */}
+        <StudyStats
+          studyTime={studyTime}
+          pauseCount={pauseCount}
+          focusScore={focusScore}
+          sessions={sessions}
+        />
 
-        <div className="mt-2">
-          <StudyStats
-            pauseCount={pauseCount}
-            focusScore={focusScore}
-            sessions={sessions}
-          />
-        </div>
-
-        {/* =======================================
-                Fourth Row
-           ======================================= */}
-
-        <div className="grid lg:grid-cols-2 gap-5 lg:gap-2 mt-2 lg:mt-2">
-          <StudyNotes notes={notes} setNotes={setNotes} />
-
-          <StudyQuote />
+        <div className="grid gap-4 lg:grid-cols-5">
+          <div className="lg:col-span-3">
+            <StudyNotes notes={notes} setNotes={setNotes} />
+          </div>
+          <div className="lg:col-span-2">
+            <StudyQuote />
+          </div>
         </div>
 
         {/* =======================================

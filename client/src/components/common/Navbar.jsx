@@ -3,6 +3,7 @@ import useAuth from "../../hooks/useAuth";
 const Navbar = ({tittle}) => {
 
   const { user } = useAuth();
+  const profileImage = user?.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "Student")}&background=2563eb&color=fff&bold=true&size=128`;
 
   return (
 
@@ -37,7 +38,8 @@ const Navbar = ({tittle}) => {
         </div>
 
         <img
-          src={`https://ui-avatars.com/api/?name=${user?.name}`}
+          src={profileImage}
+          alt={`${user?.name || "User"} profile`}
           className="w-12 h-12 rounded-full"
         />
 

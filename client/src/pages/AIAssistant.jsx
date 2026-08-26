@@ -216,7 +216,7 @@ export default function AIAssistant() {
                 </p>
               </div>
             </div>
-            <div ref={messageListRef} className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain p-5">
+            <div ref={messageListRef} className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain p-5  scrollbar-hide">
               {messages.map((message, i) => (
                 <ChatMessage key={`${message.time}-${i}`} message={message} />
               ))}

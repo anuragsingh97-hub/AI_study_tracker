@@ -4,7 +4,15 @@ body,
   width: 100%;
   overflow-x: hidden;
 }
+/* Hide scrollbar but keep scrolling */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
 
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
  /* .counter {
   font-size: 16px;
   padding: 5px 10px;

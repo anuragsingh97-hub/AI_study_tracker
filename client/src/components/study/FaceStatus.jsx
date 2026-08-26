@@ -41,24 +41,22 @@ export default function FaceStatus({
     <motion.div
       initial={{ x: 20 }}
       animate={{ x: 0 }}
-      className="bg-slate-900 rounded-3xl border border-slate-700 p-4 shadow-xl"
-      
+      className="rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-xl shadow-black/10"
     >
-      <div className="flex items-center gap-3 mb-6">
-        <BrainCircuit className="text-blue-400" />
-
-        <h2 className="text-white text-xl font-bold">AI Status</h2>
+      <div className="mb-5 flex items-center gap-3">
+        <div className="rounded-xl bg-blue-500/10 p-2 text-blue-400"><BrainCircuit size={20} /></div>
+        <div><h2 className="font-bold text-white">Focus insights</h2><p className="text-xs text-slate-400">Live distraction checks</p></div>
       </div>
 
-      <div className="flex justify-center mb-6">
+      <div className="mb-5 flex justify-center">
         <div
-          className={`w-28 h-28 rounded-full flex items-center justify-center text-3xl font-bold
+          className={`flex h-28 w-28 items-center justify-center rounded-full border text-3xl font-bold
           ${
             focusScore >= 80
-              ? "bg-green-500/20 text-green-400"
+              ? "border-green-400/30 bg-green-500/20 text-green-400"
               : focusScore >= 50
-                ? "bg-yellow-500/20 text-yellow-400"
-                : "bg-red-500/20 text-red-400"
+                ? "border-yellow-400/30 bg-yellow-500/20 text-yellow-400"
+                : "border-red-400/30 bg-red-500/20 text-red-400"
           }`}
         >
           {focusScore}%
@@ -67,7 +65,7 @@ export default function FaceStatus({
 
       
 
-      <div className="space-y-1">
+      <div className="space-y-2">
         <Item title="Face" icon={<ShieldCheck size={18} />} ok={faceDetected} />
 
         <Item
@@ -106,7 +104,7 @@ export default function FaceStatus({
           ok={!noFaceVisible && !multipleFaces}
         />
       </div>
-      <div className="mt-1 rounded-xl bg-slate-800 p-4">
+      <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/50 p-4">
         
 
         <div className="flex items-center justify-between">

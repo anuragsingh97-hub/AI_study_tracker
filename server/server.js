@@ -17,7 +17,9 @@ connectDB();
 
 const app = express();
 
-app.use(express.json());
+// Profile photos are sent as compressed data URLs. The default 100 KB JSON
+// limit is too small for them, while 2 MB still keeps request sizes bounded.
+app.use(express.json({ limit: "2mb" }));
 
 app.use(
   cors({

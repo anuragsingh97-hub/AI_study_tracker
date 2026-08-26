@@ -258,7 +258,7 @@ export default function Goals() {
   
   return (
     <DashboardLayout tittle="My Goals">
-      <main className="min-h-screen bg-slate-950 p-4 sm:p-6 lg:p-8">
+      <main className="min-h-screen bg-slate-950 p-4 sm:p-4 lg:p-1">
         <div className="mx-auto max-w-7xl space-y-6">
           <GoalHeader
             onAdd={() => {

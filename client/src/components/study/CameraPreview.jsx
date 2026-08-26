@@ -14,17 +14,17 @@ export default function CameraPreview({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-slate-900 rounded-3xl border border-slate-700 overflow-hidden shadow-xl"
+      className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-xl shadow-black/10"
     >
       {/* Header */}
-      <div className="flex justify-between items-center p-5 border-b border-slate-700">
+      <div className="flex items-center justify-between border-b border-slate-800 p-5">
         <div className="flex items-center gap-3">
-          <Camera className="text-blue-400" />
+          <div className="rounded-xl bg-blue-500/10 p-2 text-blue-400"><Camera size={20} /></div>
 
           <div>
-            <h2 className="text-white font-semibold text-lg">AI Camera</h2>
+            <h2 className="font-semibold text-white">Focus monitor</h2>
 
-            <p className="text-slate-400 text-sm">
+            <p className="text-xs text-slate-400">
               {active ? "Live Monitoring" : "Monitoring paused"}
             </p>
           </div>
@@ -60,10 +60,10 @@ export default function CameraPreview({
               height: 720,
               facingMode: "user",
             }}
-            className="w-full h-[466px] object-cover"
+            className="h-[380px] w-full object-cover sm:h-[550px]"
           />
         ) : (
-          <div className="flex h-[466px] items-center justify-center bg-slate-950 px-6 text-center">
+          <div className="flex h-[380px] items-center justify-center bg-slate-950 px-6 text-center sm:h-[550px]">
             <div>
               <Camera className="mx-auto mb-3 text-slate-500" size={36} />
               <p className="font-medium text-slate-200">Camera is paused</p>

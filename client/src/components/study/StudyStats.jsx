@@ -8,76 +8,20 @@ export default function StudyStats({
   sessions,
 }) {
   const formattedStudyTime = `${Math.floor(studyTime / 60)}m ${studyTime % 60}s`;
-  const Card = ({ title, value, icon, color }) => (
-    <div className="bg-slate-900 border border-slate-700 rounded-2xl p-5">
-      <div className="flex justify-between items-center">
-        <div>
-          <p className="text-slate-400 text-sm">{title}</p>
-
-          <h2 className="text-white text-2xl font-bold mt-2">{value}</h2>
-        </div>
-
-        <div className={`${color} p-3 rounded-xl`}>{icon}</div>
-      </div>
-    </div>
-  );
+  const stats = [
+    { title: "Study time", value: formattedStudyTime, icon: <Timer size={20} />, color: "text-violet-300 bg-violet-400/10" },
+    { title: "Breaks", value: pauseCount, icon: <Coffee size={20} />, color: "text-amber-300 bg-amber-400/10" },
+    { title: "Focus score", value: `${focusScore}%`, icon: <Target size={20} />, color: "text-emerald-300 bg-emerald-400/10" },
+    { title: "Sessions", value: sessions, icon: <TrendingUp size={20} />, color: "text-blue-300 bg-blue-400/10" },
+  ];
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="grid md:grid-cols-3 gap-5 mt-8"
+      className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
     >
-
-      <div
-        className=" rounded-xl bg-gray-900 border border-gray-800 shadow-md"
-        style={{ padding: "5px" }}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-gray-400">Breaks</p>
-            <h3 className="text-2xl font-bold text-white">{pauseCount}</h3>
-          </div>
-
-          <div className="p-3 rounded-lg bg-blue-500/20 text-blue-400">
-            <Coffee />
-          </div>
-        </div>
-      </div>
-
-      <div
-        className=" rounded-xl bg-gray-900 border border-gray-800 shadow-md"
-        style={{ padding: "5px" }}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-gray-400">Focus</p>
-            <h3 className="text-2xl font-bold text-white">
-              {`${focusScore}%`}
-            </h3>
-          </div>
-
-          <div className="p-3 rounded-lg bg-blue-500/20 text-blue-400">
-            <Target />
-          </div>
-        </div>
-      </div>
-
-      <div
-        className=" rounded-xl bg-gray-900 border border-gray-800 shadow-md"
-        style={{ padding: "5px" }}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-gray-400">Sessions</p>
-            <h3 className="text-2xl font-bold text-white">{sessions}</h3>
-          </div>
-
-          <div className="p-3 rounded-lg bg-blue-500/20 text-blue-400">
-            <TrendingUp />
-          </div>
-        </div>
-      </div>
+      {stats.map((stat) => <div key={stat.title} className="rounded-2xl border border-slate-800 bg-slate-900 p-4 shadow-lg shadow-black/5"><div className="flex items-center justify-between"><div><p className="text-xs font-medium uppercase tracking-wide text-slate-400">{stat.title}</p><h3 className="mt-2 text-2xl font-bold text-white">{stat.value}</h3></div><div className={`rounded-xl p-3 ${stat.color}`}>{stat.icon}</div></div></div>)}
     </motion.div>
   );
 }

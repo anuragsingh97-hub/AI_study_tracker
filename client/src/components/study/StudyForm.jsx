@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { BookOpen, Target, ClipboardList } from "lucide-react";
+import { BookOpen, Target, ClipboardList, CircleCheck } from "lucide-react";
 
 export default function StudyForm({
   subject,
@@ -16,10 +16,15 @@ export default function StudyForm({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="h-100 bg-slate-900 rounded-3xl p-2 sm:p-8 border border-slate-700 shadow-xl"
-      
+      className="h-full rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-xl shadow-black/10 sm:p-6"
     >
-      <h2 className="text-2xl font-bold text-white mb-6">Study Session</h2>
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-400">Session plan</p>
+          <h2 className="mt-1 text-xl font-bold text-white">What are you working on?</h2>
+        </div>
+        <div className="rounded-xl bg-blue-500/10 p-2.5 text-blue-400"><CircleCheck size={20} /></div>
+      </div>
 
       <div className="space-y-4">
         <Input
@@ -68,10 +73,8 @@ function Input({
 }) {
   return (
     <div>
-      <label className="text-slate-300 mb-2 flex items-center gap-2">
-        {icon}
-
-        {label}
+      <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-300">
+        <span className="text-blue-400">{icon}</span>{label}
       </label>
 
       <input
@@ -79,7 +82,7 @@ function Input({
         onChange={onChange}
         disabled={disabled}
         placeholder={placeholder}
-        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-60 transition"
+        className="w-full rounded-xl border border-slate-700 bg-slate-950/50 px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 disabled:cursor-not-allowed disabled:opacity-60"
       />
     </div>
   );

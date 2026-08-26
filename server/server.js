@@ -21,11 +21,21 @@ const app = express();
 // limit is too small for them, while 2 MB still keeps request sizes bounded.
 app.use(express.json({ limit: "2mb" }));
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://ai-study-track.netlify.app",
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin(origin, callback) {
+      // Requests without an Origin header include health checks and API tools.
+      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("Origin is not allowed by CORS"));
+    },
     credentials: true,
-  })
+  }),
 );
 
 app.get("/", (req, res) => {

@@ -6,6 +6,7 @@ import {
   logout,
   getCurrentUser,
   updateProfile,
+  googleLogin,
 } from "../controllers/authController.js";
 
 import protect from "../middleware/authMiddleware.js";
@@ -17,6 +18,7 @@ router.post("/register", register);
 router.post("/login", login);
 
 router.post("/logout", logout);
+router.post("/google", googleLogin);
 
 router.get("/me", protect, getCurrentUser);
 router.put("/profile", protect, updateProfile);

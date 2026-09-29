@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import InputField from "./InputField";
 import useAuth from "../../hooks/useAuth";
-
+import GoogleLoginButton from "../auth/GoogleLoginButton";
 const LoginForm = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -132,6 +132,17 @@ const LoginForm = () => {
         </Link>
 
       </p>
+      <div className="mt-4">
+            <div className="flex items-center gap-3 my-4">
+              <div className="h-px bg-gray-300 flex-1"></div>
+
+              <span className="text-gray-500 text-sm">OR</span>
+
+              <div className="h-px bg-gray-300 flex-1"></div>
+            </div>
+
+            <GoogleLoginButton />
+          </div>
 
     </motion.form>
   );

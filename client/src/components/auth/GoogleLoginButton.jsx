@@ -1,19 +1,16 @@
 import { GoogleLogin } from "@react-oauth/google";
-import axios from "axios";
 import { useState } from "react";
 import API from "../../api/axios";
-const GoogleLoginButton = () => {
 
+const GoogleLoginButton = () => {
     const [loading, setLoading] = useState(false);
 
     const handleGoogleSuccess = async (credentialResponse) => {
-
         try {
-
             setLoading(true);
 
-            const response = await axios.post(
-                `${API}/auth/google`,
+            const response = await API.post(
+                "/auth/google",
                 {
                     credential: credentialResponse.credential
                 }
@@ -31,23 +28,19 @@ const GoogleLoginButton = () => {
             window.location.href = "/dashboard";
 
         } catch (error) {
-
             console.error(
+                "Google Login Error:",
                 error.response?.data || error.message
             );
 
             alert("Google login failed");
-
         } finally {
-
             setLoading(false);
-
         }
     };
 
     return (
         <div>
-
             {loading ? (
                 <p>Signing in...</p>
             ) : (
@@ -58,7 +51,6 @@ const GoogleLoginButton = () => {
                     }}
                 />
             )}
-
         </div>
     );
 };

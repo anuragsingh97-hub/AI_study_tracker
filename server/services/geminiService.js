@@ -3,7 +3,7 @@ import axios from "axios";
 async function generateGeminiResponse(prompt) {
   try {
     const response = await axios.post(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
       {
         contents: [
           {
@@ -33,20 +33,30 @@ async function generateGeminiResponse(prompt) {
     return text;
   } catch (error) {
     console.error(
-      "Gemini Error:",
-      error.response?.data || error.message
+      "Gemini Error Status:",
+      error.response?.status
+    );
+
+    console.error(
+      "Gemini Error Data:",
+      JSON.stringify(error.response?.data, null, 2)
+    );
+
+    console.error(
+      "Gemini Error Message:",
+      error.message
     );
 
     throw error;
   }
 }
 
-// Existing function - don't break your quiz system
+// Existing quiz function
 export async function generateQuiz(prompt) {
   return generateGeminiResponse(prompt);
 }
 
-// New function for AI Assistant
+// AI Assistant
 export async function generateAIResponse(prompt) {
   return generateGeminiResponse(prompt);
 }

@@ -38,7 +38,9 @@ export const chatWithAI = async (req, res) => {
       message: response,
     });
   } catch (error) {
-    console.error("AI Controller Error:", error);
+    // Do not log the full Axios error object: it contains request headers,
+    // including the Gemini API key.
+    console.error("AI Controller Error:", error.message);
 
     return res.status(500).json({
       success: false,

@@ -1,5 +1,7 @@
 import axios from "axios";
 
+const GEMINI_MODEL = process.env.GEMINI_MODEL?.trim() || "gemini-3.8-flash";
+
 async function generateGeminiResponse(prompt) {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
 
@@ -11,7 +13,7 @@ async function generateGeminiResponse(prompt) {
     // Read the key at request time. This works both with local dotenv files
     // and with environment variables injected by the deployment platform.
     const response = await axios.post(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
       {
         contents: [
           {

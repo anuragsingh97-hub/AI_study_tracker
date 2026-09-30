@@ -1,30 +1,36 @@
 import axios from "axios";
 
 async function generateGeminiResponse(prompt) {
+  const apiKey = process.env.GEMINI_API_KEY?.trim();
+
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not configured");
+  }
+
   try {
+    // Read the key at request time. This works both with local dotenv files
+    // and with environment variables injected by the deployment platform.
     const response = await axios.post(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
       {
         contents: [
           {
-            parts: [
-              {
-                text: prompt,
-              },
-            ],
+            parts: [{ text: prompt }],
           },
         ],
       },
       {
         headers: {
           "Content-Type": "application/json",
-          "x-goog-api-key": process.env.GEMINI_API_KEY,
+          "x-goog-api-key": apiKey,
         },
-      }
+      },
     );
 
-    const text =
-      response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const text = response.data?.candidates?.[0]?.content?.parts
+      ?.map((part) => part.text ?? "")
+      .join("")
+      .trim();
 
     if (!text) {
       throw new Error("Gemini returned an empty response");
@@ -32,26 +38,12 @@ async function generateGeminiResponse(prompt) {
 
     return text;
   } catch (error) {
-    console.error(
-      "Gemini Error Status:",
-      error.response?.status
-    );
-
-    console.error(
-      "Gemini Error Data:",
-      JSON.stringify(error.response?.data, null, 2)
-    );
-
-    console.error(
-      "Gemini Error Message:",
-      error.message
-    );
-
+    console.error("Gemini Error:", error.response?.status, error.response?.data || error.message);
     throw error;
   }
 }
 
-// Existing quiz function
+// Existing quiz system
 export async function generateQuiz(prompt) {
   return generateGeminiResponse(prompt);
 }

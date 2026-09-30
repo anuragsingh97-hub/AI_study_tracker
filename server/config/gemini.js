@@ -1,7 +1,3 @@
-import { GoogleGenAI } from "@google/genai";
-
-const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY,
-});
-
-export default ai;
+// Gemini requests are made in services/geminiService.js so API keys are read
+// after deployment environment variables have been loaded.
+export default null;

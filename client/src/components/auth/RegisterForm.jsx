@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import useAuth from "../../hooks/useAuth";
 import InputField from "./InputField";
+import GoogleLoginButton from "./GoogleLoginButton";
 
 const RegisterForm = () => {
   const navigate = useNavigate();
@@ -70,20 +71,24 @@ const RegisterForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (loading) return;
+
     if (!validate()) return;
 
     setLoading(true);
 
-    const success = await register({
-      name: form.name.trim(),
-      email: form.email.trim(),
-      password: form.password,
-    });
+    try {
+      const success = await register({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password,
+      });
 
-    setLoading(false);
-
-    if (success) {
-      navigate("/dashboard");
+      if (success) {
+        navigate("/dashboard");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -135,6 +140,7 @@ const RegisterForm = () => {
           value={form.name}
           onChange={handleChange}
           error={errors.name}
+          disabled={loading}
         />
 
         <InputField
@@ -145,6 +151,7 @@ const RegisterForm = () => {
           value={form.email}
           onChange={handleChange}
           error={errors.email}
+          disabled={loading}
         />
 
         <InputField
@@ -157,6 +164,7 @@ const RegisterForm = () => {
           showPassword={showPassword}
           togglePassword={() => setShowPassword(!showPassword)}
           error={errors.password}
+          disabled={loading}
         />
 
         {strength && (
@@ -183,6 +191,7 @@ const RegisterForm = () => {
           showPassword={showConfirm}
           togglePassword={() => setShowConfirm(!showConfirm)}
           error={errors.confirmPassword}
+          disabled={loading}
         />
       </div>
 
@@ -193,7 +202,7 @@ const RegisterForm = () => {
         disabled={loading}
         className="w-full mt-8 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 py-3.5 text-white font-semibold transition duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/30 disabled:opacity-60"
       >
-        {loading ? "Creating Account..." : "Create Account"}
+        {loading ? <span className="flex items-center justify-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" /> Creating account…</span> : "Create Account"}
       </button>
 
       {/* Divider */}
@@ -220,6 +229,10 @@ const RegisterForm = () => {
           Login
         </Link>
       </p>
+
+      <div className="mt-4">
+        <GoogleLoginButton label="Creating your account" />
+      </div>
     </motion.form>
   );
 };

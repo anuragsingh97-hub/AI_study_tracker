@@ -10,6 +10,7 @@ const InputField = ({
   error,
   showPassword,
   togglePassword,
+  disabled = false,
 }) => {
   const isPasswordField = type === "password";
 
@@ -34,6 +35,7 @@ const InputField = ({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
+          disabled={disabled}
           className={`w-full rounded-xl border px-4 py-3 bg-slate-800 text-white outline-none transition
 
           ${
@@ -47,6 +49,7 @@ const InputField = ({
           <button
             type="button"
             onClick={togglePassword}
+            disabled={disabled}
             className="absolute right-4 top-4 text-gray-400"
           >
             {showPassword ? <FaEyeSlash /> : <FaEye />}

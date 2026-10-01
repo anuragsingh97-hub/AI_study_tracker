@@ -26,14 +26,17 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (loading) return;
+
     setLoading(true);
+    try {
+      const success = await login(form);
 
-    const success = await login(form);
-
-    setLoading(false);
-
-    if (success) {
-      navigate("/dashboard");
+      if (success) {
+        navigate("/dashboard");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,6 +69,7 @@ const LoginForm = () => {
           value={form.email}
           onChange={handleChange}
           name="email"
+          disabled={loading}
         />
 
         <InputField
@@ -74,6 +78,7 @@ const LoginForm = () => {
           value={form.password}
           onChange={handleChange}
           name="password"
+          disabled={loading}
           showPassword={showPassword}
           togglePassword={() =>
             setShowPassword(!showPassword)
@@ -101,7 +106,7 @@ const LoginForm = () => {
         disabled={loading}
         className="w-full mt-8 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 py-3.5 text-white font-semibold transition duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/30 disabled:opacity-60"
       >
-        {loading ? "Logging In..." : "Login"}
+        {loading ? <span className="flex items-center justify-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" /> Logging in…</span> : "Login"}
       </button>
 
       {/* Divider */}

@@ -1,5 +1,20 @@
 import { askAIAssistant } from "../services/aiAssistantService.js";
 import { buildAIContext } from "../services/aiContextService.js";
+import AIChatMessage from "../models/AIChatMessage.js";
+
+export const getChatHistory = async (req, res) => {
+  try {
+    const messages = await AIChatMessage.find({ user: req.user._id })
+      .sort({ createdAt: 1, _id: 1 })
+      .select("role text createdAt")
+      .lean();
+
+    return res.status(200).json({ success: true, messages });
+  } catch (error) {
+    console.error("AI chat history error:", error.message);
+    return res.status(500).json({ success: false, message: "Unable to load chat history" });
+  }
+};
 
 export const chatWithAI = async (req, res) => {
   try {
@@ -33,9 +48,15 @@ export const chatWithAI = async (req, res) => {
       context,
     });
 
+    const savedMessages = await AIChatMessage.insertMany([
+      { user: userId, role: "user", text: message.trim() },
+      { user: userId, role: "assistant", text: response },
+    ]);
+
     return res.status(200).json({
       success: true,
       message: response,
+      messages: savedMessages.map(({ role, text, createdAt }) => ({ role, text, createdAt })),
     });
   } catch (error) {
     // Do not log the full Axios error object: it contains request headers,

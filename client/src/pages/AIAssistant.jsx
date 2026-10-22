@@ -49,6 +49,11 @@ const time = () =>
     new Date(),
   );
 
+const formatMessageTime = (createdAt) =>
+  createdAt
+    ? new Intl.DateTimeFormat("en", { hour: "numeric", minute: "2-digit" }).format(new Date(createdAt))
+    : time();
+
 function assistantReply(prompt) {
   const subject = /binary search/i.test(prompt)
     ? "Binary Search"
@@ -124,6 +129,31 @@ export default function AIAssistant() {
   const messageListRef = useRef(null);
   const fileInputRef = useRef(null);
   useEffect(() => {
+    let active = true;
+
+    const loadHistory = async () => {
+      try {
+        const { data } = await API.get("/ai/history");
+        if (!active || !Array.isArray(data.messages) || !data.messages.length) return;
+
+        const history = data.messages.map(({ role, text, createdAt }) => ({
+          role,
+          text,
+          time: formatMessageTime(createdAt),
+        }));
+        setMessages((current) => (current.length > 1 ? current : history));
+      } catch {
+        // Keep the existing welcome message when history cannot be loaded.
+      }
+    };
+
+    loadHistory();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
     const messageList = messageListRef.current;
     if (messageList) {
       messageList.scrollTo({ top: messageList.scrollHeight, behavior: "smooth" });
@@ -142,7 +172,11 @@ export default function AIAssistant() {
       const { data } = await API.post("/ai/chat", { message: text });
       setMessages((current) => [
         ...current,
-        { role: "assistant", text: data.message, time: time() },
+        {
+          role: "assistant",
+          text: data.message,
+          time: formatMessageTime(data.messages?.[1]?.createdAt),
+        },
       ]);
     } catch (error) {
       setMessages((current) => [

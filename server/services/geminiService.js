@@ -1,8 +1,10 @@
 import axios from "axios";
 
 const GEMINI_MODEL = process.env.GEMINI_MODEL?.trim() || "gemini-3.8-flash";
-const MAX_ATTEMPTS = 4;
-const REQUEST_TIMEOUT_MS = 60_000;
+// A quiz request is part of an interactive flow. Keep retries short and let
+// the quiz service use its local fallback when Gemini remains unavailable.
+const MAX_ATTEMPTS = 2;
+const REQUEST_TIMEOUT_MS = 15_000;
 let geminiRequestQueue = Promise.resolve();
 
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));

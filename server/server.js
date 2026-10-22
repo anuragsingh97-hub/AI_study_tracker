@@ -41,7 +41,7 @@ app.use(
 app.get("/", (req, res) => {
   res.json({
     success: true,
-    message: "AI Study Tracker Backend Running 🚀",
+    message: "Backend Running 🚀",
   });
 });
 

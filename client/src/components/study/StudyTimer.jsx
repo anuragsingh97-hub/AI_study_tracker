@@ -11,6 +11,7 @@ export default function StudyTimer({
   loading = false,
 }) {
   const running = status === "running";
+  const retryingQuizGeneration = status === "generation_error";
   const formattedTime =
     `${String(Math.floor(studyTime / 60)).padStart(2, "0")}:` +
     `${String(studyTime % 60).padStart(2, "0")}`;
@@ -72,7 +73,7 @@ export default function StudyTimer({
           className="flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:border-red-400/40 hover:bg-red-500/10 hover:text-red-200 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <CheckCircle2 size={18} />
-          Finish Study
+          {retryingQuizGeneration ? "Retry quiz generation" : "Finish Study"}
         </button>
       </div>
 

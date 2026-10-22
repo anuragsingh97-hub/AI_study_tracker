@@ -101,10 +101,15 @@ export const updateStudy = async (req, res) => {
 
     return res.status(200).json({ success: true, message: "Study session updated", study });
   } catch (error) {
+    const upstreamStatus = error.upstreamStatus ?? error.response?.status;
     return sendError(
       res,
-      error.name === "ValidationError" || error.name === "CastError" ? 400 : 500,
-      error.message,
+      error.name === "ValidationError" || error.name === "CastError"
+        ? 400
+        : upstreamStatus === 429 || upstreamStatus === 503
+          ? upstreamStatus
+          : 500,
+      error.userMessage || error.message,
     );
   }
 };

@@ -63,14 +63,15 @@ export const chatWithAI = async (req, res) => {
     // including the Gemini API key.
     console.error("AI Controller Error:", error.message);
 
-    const upstreamStatus = error.response?.status;
+    const upstreamStatus = error.upstreamStatus ?? error.response?.status;
     const temporarilyUnavailable = upstreamStatus === 503;
+    const rateLimited = upstreamStatus === 429;
 
-    return res.status(temporarilyUnavailable ? 503 : 500).json({
+    return res.status(rateLimited ? 429 : temporarilyUnavailable ? 503 : 500).json({
       success: false,
-      message: temporarilyUnavailable
+      message: error.userMessage || (temporarilyUnavailable
         ? "The AI assistant is temporarily busy. Please try again in a moment."
-        : "Failed to get AI response",
+        : "Failed to get AI response"),
       error:
         process.env.NODE_ENV === "development"
           ? error.message

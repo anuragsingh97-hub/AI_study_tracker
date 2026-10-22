@@ -51,11 +51,13 @@ export const generateQuiz = async (req, res) => {
       quiz,
     });
   } catch (error) {
-    console.log(error);
+    const upstreamStatus = error.upstreamStatus ?? error.response?.status;
+    const status = upstreamStatus === 429 || upstreamStatus === 503 ? upstreamStatus : 500;
+    console.error("Quiz generation error:", error.message);
 
-    res.status(500).json({
+    res.status(status).json({
       success: false,
-      message: error.message,
+      message: error.userMessage || "Unable to generate the quiz right now. Please try again.",
     });
   }
 };

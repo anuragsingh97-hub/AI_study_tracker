@@ -5,6 +5,7 @@ const GEMINI_MODEL = process.env.GEMINI_MODEL?.trim() || "gemini-3.8-flash";
 // the quiz service use its local fallback when Gemini remains unavailable.
 const MAX_ATTEMPTS = 2;
 const REQUEST_TIMEOUT_MS = 15_000;
+const MAX_RETRY_DELAY_MS = 5_000;
 let geminiRequestQueue = Promise.resolve();
 
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -12,6 +13,12 @@ const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, mill
 const isRetryableGeminiError = (error) => {
   const status = error.response?.status;
   return !status || status === 408 || status === 429 || status >= 500;
+};
+
+const isQuotaExhausted = (error) => {
+  if (error.response?.status !== 429) return false;
+  const message = error.response?.data?.error?.message ?? "";
+  return /quota exceeded|plan and billing|free_tier_requests/i.test(message);
 };
 
 const retryDelayFromError = (error) => {
@@ -87,6 +94,14 @@ async function generateGeminiResponse(prompt) {
       return text;
     } catch (error) {
       lastError = error;
+      if (isQuotaExhausted(error)) {
+        // This quota does not clear in a few seconds (the provider can return
+        // a retry time of many hours), so do not hold the request open.
+        error.upstreamStatus = 429;
+        error.userMessage = "The AI provider's daily quota is exhausted. Please try again after the quota resets.";
+        console.warn("Gemini daily quota exhausted; skipping retries.");
+        throw error;
+      }
       const shouldRetry = attempt < MAX_ATTEMPTS && isRetryableGeminiError(error);
 
       console.error(
@@ -104,7 +119,10 @@ async function generateGeminiResponse(prompt) {
 
       // Gemini may return a RetryInfo delay for 429 responses. Honor it when
       // available, otherwise use exponential backoff with jitter.
-      const delay = retryDelayFromError(error) ?? (1_000 * 2 ** (attempt - 1) + Math.floor(Math.random() * 250));
+      const delay = Math.min(
+        retryDelayFromError(error) ?? (1_000 * 2 ** (attempt - 1) + Math.floor(Math.random() * 250)),
+        MAX_RETRY_DELAY_MS,
+      );
       await wait(delay);
     }
   }

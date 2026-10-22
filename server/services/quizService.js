@@ -36,7 +36,10 @@ export async function generateQuizFromTopic(subject, topic, studySummary = "") {
     // A quota/availability failure should never leave a completed study
     // session stuck on the generating screen. Persist a valid review quiz
     // immediately, then the next session can use Gemini again normally.
-    console.warn("Gemini quiz generation unavailable; using local fallback.", error.message);
+    console.warn(
+      "Gemini quiz generation unavailable; using local fallback.",
+      error.upstreamStatus ?? error.response?.status ?? error.message,
+    );
     return createFallbackQuiz(subject, topic, studySummary);
   }
 }

@@ -134,9 +134,17 @@ const Dashboard = () => {
       const date = new Date(study.startTime || study.createdAt);
       return date >= weekStart && date < nextWeekStart;
     });
-    const activeSession = studies.find(
+    const newestFirst = [...studies].sort((first, second) => {
+      const firstTime = new Date(first.startTime || first.createdAt || 0).getTime();
+      const secondTime = new Date(second.startTime || second.createdAt || 0).getTime();
+      return secondTime - firstTime;
+    });
+    const activeSession = newestFirst.find(
       (study) => study.status === "active" || study.status === "paused",
     );
+    // Finished sessions are not active, but the last saved study should still
+    // appear here instead of showing "None".
+    const currentStudy = activeSession || newestFirst[0];
     const dailyGoals = goals.filter((goal) => {
       const deadline = new Date(goal.deadline);
       return deadline >= todayStart && deadline < tomorrowStart;
@@ -155,7 +163,8 @@ const Dashboard = () => {
         (total, study) => total + durationOf(study, now),
         0,
       ),
-      activeSession,
+      activeSession: currentStudy,
+      currentStudy,
       dailyGoals,
       weeklyGoals,
       weeklyProgress: progressOf(weeklyGoals),

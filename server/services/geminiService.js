@@ -8,7 +8,8 @@ const REQUEST_TIMEOUT_MS = 15_000;
 const MAX_RETRY_DELAY_MS = 5_000;
 let geminiRequestQueue = Promise.resolve();
 
-const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+const wait = (milliseconds) =>
+  new Promise((resolve) => setTimeout(resolve, milliseconds));
 
 const isRetryableGeminiError = (error) => {
   const status = error.response?.status;
@@ -23,17 +24,22 @@ const isQuotaExhausted = (error) => {
 
 const retryDelayFromError = (error) => {
   const retryAfter = error.response?.headers?.["retry-after"];
-  if (retryAfter && !Number.isNaN(Number(retryAfter))) return Number(retryAfter) * 1_000;
+  if (retryAfter && !Number.isNaN(Number(retryAfter)))
+    return Number(retryAfter) * 1_000;
 
   const details = error.response?.data?.error?.details ?? [];
-  const retryInfo = details.find((detail) => typeof detail.retryDelay === "string");
+  const retryInfo = details.find(
+    (detail) => typeof detail.retryDelay === "string",
+  );
   const seconds = Number.parseFloat(retryInfo?.retryDelay);
   return Number.isFinite(seconds) ? seconds * 1_000 : null;
 };
 
 const userMessageForGeminiError = (status) => {
-  if (status === 429) return "AI quiz generation is temporarily rate limited. Please wait a moment and try again.";
-  if (status === 503) return "The AI service is temporarily unavailable. Please try again in a moment.";
+  if (status === 429)
+    return "AI quiz generation is temporarily rate limited. Please wait a moment and try again.";
+  if (status === 503)
+    return "The AI service is temporarily unavailable. Please try again in a moment.";
   return "Unable to generate the quiz right now. Please try again.";
 };
 
@@ -98,11 +104,13 @@ async function generateGeminiResponse(prompt) {
         // This quota does not clear in a few seconds (the provider can return
         // a retry time of many hours), so do not hold the request open.
         error.upstreamStatus = 429;
-        error.userMessage = "The AI provider's daily quota is exhausted. Please try again after the quota resets.";
+        error.userMessage =
+          "The AI provider's daily quota is exhausted. Please try again after the quota resets.";
         console.warn("Gemini daily quota exhausted; skipping retries.");
         throw error;
       }
-      const shouldRetry = attempt < MAX_ATTEMPTS && isRetryableGeminiError(error);
+      const shouldRetry =
+        attempt < MAX_ATTEMPTS && isRetryableGeminiError(error);
 
       console.error(
         `Gemini attempt ${attempt}/${MAX_ATTEMPTS} failed:`,
@@ -120,7 +128,8 @@ async function generateGeminiResponse(prompt) {
       // Gemini may return a RetryInfo delay for 429 responses. Honor it when
       // available, otherwise use exponential backoff with jitter.
       const delay = Math.min(
-        retryDelayFromError(error) ?? (1_000 * 2 ** (attempt - 1) + Math.floor(Math.random() * 250)),
+        retryDelayFromError(error) ??
+          1_000 * 2 ** (attempt - 1) + Math.floor(Math.random() * 250),
         MAX_RETRY_DELAY_MS,
       );
       await wait(delay);
